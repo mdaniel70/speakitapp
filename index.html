@@ -94,6 +94,45 @@
 
         </div>
     </section>
-
+    <script>
+        // 1. Initialize the Speech Engine
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+            alert("Sorry, your browser does not support speech recognition. Please use Chrome or Edge.");
+        } else {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false; // Stops listening after one word/phrase
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+    
+            // 2. Target the elements in your HTML
+            const startBtn = document.getElementById('start-lab-btn');
+            const feedbackText = document.getElementById('speech-feedback');
+    
+            // 3. What happens when the button is clicked
+            startBtn.addEventListener('click', (e) => {
+                e.preventDefault(); // Prevents the link from jumping
+                feedbackText.innerText = "Listening... Speak now!";
+                feedbackText.classList.remove('hidden');
+                recognition.start();
+            });
+    
+            // 4. What happens when the AI hears a word
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                feedbackText.innerHTML = `You said: <span class="text-purple-600 font-bold">"${transcript}"</span>`;
+                
+                // Optional: Logic to check if the word is correct
+                console.log("AI Heard:", transcript);
+            };
+    
+            // 5. Handle errors (like if the user stays silent)
+            recognition.onerror = (event) => {
+                feedbackText.innerText = "Try again! I didn't quite catch that.";
+                console.error("Speech Error:", event.error);
+            };
+        }
+    </script>
 </body>
 </html>
