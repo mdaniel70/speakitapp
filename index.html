@@ -23,6 +23,13 @@
             100% { background-position: 0% 50%; }
         }
         .feature-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* Animation to make the red mic "pulse" slightly while listening */
+        .pulse-red { animation: pulse 1.5s infinite; }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
     </style>
 </head>
 <body class="bg-slate-50">
@@ -49,13 +56,13 @@
         <h1 class="text-5xl md:text-7xl font-black text-slate-900 leading-tight mb-6 uppercase">
             Speak the words you <span class="text-purple-600">SEE</span>
         </h1>
-        <p class="text-xl text-slate-500">Get through 20 words to see your score!</p>
+        <p class="text-xl text-slate-500">Read 20 words to get your score!</p>
     </header>
 
     <section class="max-w-7xl mx-auto p-4 md:p-8">
         <div id="game-card" class="feature-card bg-white p-8 md:p-16 rounded-3xl border-2 border-slate-200 text-center max-w-fit mx-auto min-w-[320px]">
             <div id="start-lab-btn" class="cursor-pointer">
-                <div class="w-20 h-20 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <div id="mic-circle" class="w-20 h-20 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                     </svg>
@@ -78,18 +85,13 @@
     </section>
 
     <script>
-        // 1. YOUR WORD LIST
         const sightWords = ['spend', 'enjoy', 'awful', 'awe', 'usual', 'complain', 'auto', 'vacation', 'beautiful', 'beauty', 'flight', 'travel', 'rapid', 'repair', 'trouble'];
-        
         let currentWord = "";
         let attempts = 0;
         let sessionTotal = 0;
         let sessionCorrect = 0;
         const maxWords = 20;
 
-        // 2. BULLETPROOF SOUND (Embedded Chime)
-        const successChime = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFRm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTtvT197f39/f39/f39/f39/f39/f39/f39/f3+Af4CAgICAgICAgICAgICAgICAgICAgICA="); 
-        // Note: I will use a synthesized beep to ensure it works even without a file link
         const context = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSuccessSound() {
@@ -98,7 +100,7 @@
             osc.connect(gain);
             gain.connect(context.destination);
             osc.type = "sine";
-            osc.frequency.setValueAtTime(880, context.currentTime); // High A note
+            osc.frequency.setValueAtTime(880, context.currentTime);
             gain.gain.setValueAtTime(0.1, context.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.5);
             osc.start();
@@ -113,6 +115,7 @@
             const recognition = new SpeechRecognition();
             recognition.lang = 'en-US';
 
+            const micCircle = document.getElementById('mic-circle');
             const gameCard = document.getElementById('game-card');
             const resultsCard = document.getElementById('results-card');
             const startBtn = document.getElementById('start-lab-btn');
@@ -134,6 +137,7 @@
                 attempts = 0;
                 feedbackText.classList.add('hidden');
                 instruction.innerText = "Click to read!";
+                resetMicColor();
             }
 
             function showResults() {
@@ -145,13 +149,25 @@
                 document.getElementById('final-stats').innerText = `You got ${sessionCorrect} out of ${maxWords} correct!`;
             }
 
+            // HELPER FUNCTIONS TO CHANGE COLOR
+            function setMicToListening() {
+                micCircle.classList.remove('bg-purple-100', 'text-purple-600');
+                micCircle.classList.add('bg-red-500', 'text-white', 'pulse-red');
+            }
+
+            function resetMicColor() {
+                micCircle.classList.add('bg-purple-100', 'text-purple-600');
+                micCircle.classList.remove('bg-red-500', 'text-white', 'pulse-red');
+            }
+
             pickNewWord();
 
             startBtn.addEventListener('click', () => {
-                // This "wakes up" the sound engine on the first click
-                if (context.state === 'suspended') {
-                    context.resume();
-                }
+                if (context.state === 'suspended') { context.resume(); }
+                
+                // Change to red when we start
+                setMicToListening();
+                
                 feedbackText.classList.remove('hidden');
                 feedbackText.innerText = "Listening...";
                 recognition.start();
@@ -159,9 +175,13 @@
 
             recognition.onresult = (event) => {
                 const userSaid = event.results[0][0].transcript.toLowerCase().trim();
+                
+                // Change back to purple as soon as we hear something
+                resetMicColor();
+
                 if (userSaid.includes(currentWord.toLowerCase())) {
                     sessionCorrect++;
-                    playSuccessSound(); // PLAY SYNTHESIZED CHIME
+                    playSuccessSound();
                     feedbackText.innerHTML = `🌟 Correct!`;
                     setTimeout(pickNewWord, 1200);
                 } else {
@@ -174,6 +194,12 @@
                         setTimeout(pickNewWord, 1500);
                     }
                 }
+            };
+
+            // Always reset color if there's an error
+            recognition.onerror = () => {
+                resetMicColor();
+                feedbackText.innerText = "I didn't hear you. Click to try again!";
             };
         }
     </script>
