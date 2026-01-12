@@ -73,7 +73,8 @@
         let attempts = 0;
 
         // 2. SUCCESS SOUND (High-quality chime)
-        const successChime = new Audio('https://actions.google.com/sounds/v1/cartoon/clink_chime.ogg');
+       // 1. Create the audio object
+const successChime = new Audio('https://cdn.pixabay.com/audio/2022/03/15/audio_78330a8407.mp3'); // A reliable bell sound
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
@@ -101,20 +102,28 @@
             pickNewWord();
 
             startBtn.addEventListener('click', () => {
-                feedbackText.classList.remove('hidden');
-                feedbackText.innerText = "Listening...";
-                recognition.start();
-            });
+            // UNLOCK AUDIO: This "plays" then "pauses" the sound immediately
+            // to tell the browser this site is allowed to make noise.
+            successChime.play().then(() => {
+                successChime.pause();
+                successChime.currentTime = 0;
+            }).catch(e => console.log("Audio unlock waiting..."));
+
+            feedbackText.classList.remove('hidden');
+            feedbackText.innerText = "Listening...";
+            recognition.start();
+        });
 
             recognition.onresult = (event) => {
                 const userSaid = event.results[0][0].transcript.toLowerCase().trim();
                 
                 // Compare what the user said to the target word
                 if (userSaid.includes(currentWord.toLowerCase())) {
-                    // CORRECT
-                    successChime.play();
-                    feedbackText.innerHTML = `🌟 Excellent! You said "${currentWord}"`;
-                    setTimeout(pickNewWord, 1500);
+    successChime.volume = 1.0; // Ensure volume is up
+    successChime.play(); // Play the chime
+    feedbackText.innerHTML = `🌟 Excellent! You said "${currentWord}"`;
+    setTimeout(pickNewWord, 1500);
+}
                 } else {
                     // INCORRECT
                     attempts++;
