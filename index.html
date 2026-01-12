@@ -49,7 +49,7 @@
         <h1 class="text-5xl md:text-7xl font-black text-slate-900 leading-tight mb-6 uppercase">
             Speak the words you <span class="text-purple-600">SEE</span>
         </h1>
-        <p class="text-xl text-slate-500">Practice 20 words to get your score!</p>
+        <p class="text-xl text-slate-500">Get through 20 words to see your score!</p>
     </header>
 
     <section class="max-w-7xl mx-auto p-4 md:p-8">
@@ -70,14 +70,15 @@
         </div>
 
         <div id="results-card" class="hidden feature-card bg-white p-12 rounded-3xl border-2 border-slate-400 text-center max-w-xl mx-auto">
-            <h2 class="text-4xl font-black mb-4">Session Complete!</h2>
+            <h2 class="text-4xl font-black mb-4">All Done!</h2>
             <div class="text-8xl font-black text-purple-600 mb-6" id="final-percentage">0%</div>
             <p class="text-2xl text-slate-600 mb-8" id="final-stats">You got 0 out of 20 correct!</p>
-            <button onclick="location.reload()" class="bg-purple-600 text-white px-8 py-4 rounded-full font-black text-xl uppercase hover:bg-purple-700 transition">Try Again</button>
+            <button onclick="location.reload()" class="bg-purple-600 text-white px-8 py-4 rounded-full font-black text-xl uppercase">Play Again</button>
         </div>
     </section>
 
     <script>
+        // 1. YOUR WORD LIST
         const sightWords = ['spend', 'enjoy', 'awful', 'awe', 'usual', 'complain', 'auto', 'vacation', 'beautiful', 'beauty', 'flight', 'travel', 'rapid', 'repair', 'trouble'];
         
         let currentWord = "";
@@ -86,15 +87,28 @@
         let sessionCorrect = 0;
         const maxWords = 20;
 
-        // AUDIO FIX: Use a Google-hosted sound which is extremely reliable
-        const successChime = new Audio('https://fonts.gstatic.com/s/i/productlogos/googleg/v6/web-24px.svg'); // Temporary placeholder link logic below
-        // Actually, let's use a base64 sound or a direct reliable mp3 to ensure it's not a link-block issue
-        const soundEffect = new Audio('https://actions.google.com/sounds/v1/cartoon/clink_chime.ogg');
+        // 2. BULLETPROOF SOUND (Embedded Chime)
+        const successChime = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFRm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YTtvT197f39/f39/f39/f39/f39/f39/f39/f3+Af4CAgICAgICAgICAgICAgICAgICAgICA="); 
+        // Note: I will use a synthesized beep to ensure it works even without a file link
+        const context = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSuccessSound() {
+            const osc = context.createOscillator();
+            const gain = context.createGain();
+            osc.connect(gain);
+            gain.connect(context.destination);
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(880, context.currentTime); // High A note
+            gain.gain.setValueAtTime(0.1, context.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.5);
+            osc.start();
+            osc.stop(context.currentTime + 0.5);
+        }
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
         if (!SpeechRecognition) {
-            alert("Please use Chrome for the microphone.");
+            alert("Please use Chrome.");
         } else {
             const recognition = new SpeechRecognition();
             recognition.lang = 'en-US';
@@ -112,10 +126,8 @@
                     showResults();
                     return;
                 }
-
                 sessionTotal++;
                 counterDisplay.innerText = sessionTotal;
-
                 const randomIndex = Math.floor(Math.random() * sightWords.length);
                 currentWord = sightWords[randomIndex];
                 wordDisplay.innerText = currentWord;
@@ -128,22 +140,18 @@
                 gameCard.classList.add('hidden');
                 document.getElementById('app-header').classList.add('hidden');
                 resultsCard.classList.remove('hidden');
-                
                 const percent = Math.round((sessionCorrect / maxWords) * 100);
                 document.getElementById('final-percentage').innerText = percent + "%";
                 document.getElementById('final-stats').innerText = `You got ${sessionCorrect} out of ${maxWords} correct!`;
             }
 
-            // Start Session
             pickNewWord();
 
             startBtn.addEventListener('click', () => {
-                // AUDIO UNLOCK: Prime the audio context on user click
-                soundEffect.play().then(() => {
-                    soundEffect.pause();
-                    soundEffect.currentTime = 0;
-                }).catch(e => console.log("Audio readying..."));
-
+                // This "wakes up" the sound engine on the first click
+                if (context.state === 'suspended') {
+                    context.resume();
+                }
                 feedbackText.classList.remove('hidden');
                 feedbackText.innerText = "Listening...";
                 recognition.start();
@@ -151,29 +159,21 @@
 
             recognition.onresult = (event) => {
                 const userSaid = event.results[0][0].transcript.toLowerCase().trim();
-                
                 if (userSaid.includes(currentWord.toLowerCase())) {
-                    // CORRECT
                     sessionCorrect++;
-                    soundEffect.volume = 1.0;
-                    soundEffect.play(); 
+                    playSuccessSound(); // PLAY SYNTHESIZED CHIME
                     feedbackText.innerHTML = `🌟 Correct!`;
                     setTimeout(pickNewWord, 1200);
                 } else {
-                    // INCORRECT
                     attempts++;
                     if (attempts < 2) {
-                        feedbackText.innerHTML = `❌ Try again! (You said: ${userSaid})`;
+                        feedbackText.innerHTML = `❌ Try again!`;
                         instruction.innerText = "Click for 2nd chance!";
                     } else {
-                        feedbackText.innerHTML = `Moving on...`;
+                        feedbackText.innerHTML = `Next word...`;
                         setTimeout(pickNewWord, 1500);
                     }
                 }
-            };
-
-            recognition.onerror = () => {
-                feedbackText.innerText = "I didn't hear you. Click to try again!";
             };
         }
     </script>
