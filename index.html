@@ -21,116 +21,116 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        .feature-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        .feature-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .feature-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -6px rgba(0, 0, 0, 0.04);
-            border-color: rgba(37, 99, 235, 0.3);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body class="bg-slate-50">
 
-    <!-- Navigation -->
     <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20">
                 <div class="flex items-center">
-                    <a href="/" class="flex-shrink-0 flex items-center gap-2 group">
-                        <!-- Simple Spark Icon -->
-                        <div class="bg-purple-400 p-2 rounded-lg group-hover:rotate-12 transition-transform">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                            </svg>
-                        </div>
-                        <span class="text-2xl font-black tracking-tighter text-slate-900 uppercase">Speak <span class="text-purple-600">IT!</span>
-                    </a>
-                </div>
- 
+                    <div class="bg-purple-400 p-2 rounded-lg mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <span class="text-2xl font-black tracking-tighter text-slate-900 uppercase">Speak <span class="text-purple-600">IT!</span></span>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <header class="relative overflow-hidden bg-white pt-16 pb-24 border-b border-slate-100">
-        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-full h-full opacity-5 pointer-events-none">
-            <div class="grid grid-cols-6 gap-8 text-8xl font-black text-slate-400 select-none">
-                <div>a</div><div>b</div><div>c</div><div>d</div><div>e</div><div>f</div>
-                <div>g</div><div>h</div><div>i</div><div>j</div><div>k</div><div>l</div>
-            </div>
-        </div>
-
         <div class="relative max-w-5xl mx-auto px-4 text-center">
             <h1 class="text-5xl md:text-7xl font-black text-slate-900 leading-tight mb-6 uppercase">
                 Speak the words you <span class="text-purple-600">SEE</span><br>
-               and discover the <span class="sparkle-text">KEY!</span>
+                and discover the <span class="sparkle-text">KEY!</span>
             </h1>
-            <p class="text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-                Practice your site words with <strong>AI FEEDBACK!</strong>
-          
-            
+            <p class="text-xl text-slate-500 max-w-2xl mx-auto mb-10">Practice your sight words with <strong>AI FEEDBACK!</strong></p>
         </div>
     </header>
 
-    <!-- The 4-Step Process Section -->
+    <section class="max-w-4xl mx-auto p-8">
+        <div id="start-lab-btn" class="feature-card bg-white p-12 rounded-3xl border-2 border-slate-200 text-center cursor-pointer">
+            <div class="w-20 h-20 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                </svg>
+            </div>
+            
+            <div id="word-to-say" class="text-6xl font-black text-slate-900 mb-4 uppercase tracking-widest">---</div>
+            <p id="instruction" class="text-slate-500 text-xl mb-8">Click here to start!</p>
 
-        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-8">
-
-
-            <!-- Step 3: Speak It -->
-            <a href="https://script.google.com/macros/s/AKfycbxxRbTaEqgYS-jVer5ZKkwT3CQbgtm4SJwpoy3svMldMTTHxFLzvbyVASIMq27F-ioc/exec" class="feature-card bg-white p-8 rounded-3xl border border-slate-200 text-center block hover:no-underline">
-                <div class="w-16 h-16 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-black text-slate-900 mb-2 uppercase">Site Word Lab!</h3>
-                <p class="text-slate-500 text-xl">Master the words that are right for you!</p>
-                <span class="inline-block mt-4 text-purple-600 font-bold text-xl uppercase tracking-widest">Launch Site Word Builder &rarr;</span>
-            </a>
-
+            <div id="speech-feedback" class="p-4 bg-purple-50 rounded-xl text-purple-800 font-bold text-2xl hidden">
+                Waiting for you...
+            </div>
         </div>
     </section>
+
     <script>
-        // 1. Initialize the Speech Engine
+        // 1. Setup the Word List and Counter
+        const sightWords = ["the", "of", "and", "a", "to", "in", "is", "you", "that", "it"];
+        let currentWord = "";
+        let attempts = 0;
+
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         
         if (!SpeechRecognition) {
-            alert("Sorry, your browser does not support speech recognition. Please use Chrome or Edge.");
+            alert("Please use Chrome or Edge for the microphone to work.");
         } else {
             const recognition = new SpeechRecognition();
-            recognition.continuous = false; // Stops listening after one word/phrase
             recognition.lang = 'en-US';
-            recognition.interimResults = false;
-    
-            // 2. Target the elements in your HTML
+
             const startBtn = document.getElementById('start-lab-btn');
+            const wordDisplay = document.getElementById('word-to-say');
             const feedbackText = document.getElementById('speech-feedback');
-    
-            // 3. What happens when the button is clicked
-            startBtn.addEventListener('click', (e) => {
-                e.preventDefault(); // Prevents the link from jumping
-                feedbackText.innerText = "Listening... Speak now!";
+            const instruction = document.getElementById('instruction');
+
+            // Function to pick a new random word
+            function pickNewWord() {
+                const randomIndex = Math.floor(Math.random() * sightWords.length);
+                currentWord = sightWords[randomIndex];
+                wordDisplay.innerText = currentWord;
+                attempts = 0;
+                instruction.innerText = "Click to read this word!";
+            }
+
+            // Initialize the first word
+            pickNewWord();
+
+            startBtn.addEventListener('click', () => {
                 feedbackText.classList.remove('hidden');
+                feedbackText.innerText = "Listening...";
                 recognition.start();
             });
-    
-            // 4. What happens when the AI hears a word
+
             recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                feedbackText.innerHTML = `You said: <span class="text-purple-600 font-bold">"${transcript}"</span>`;
+                const userSaid = event.results[0][0].transcript.toLowerCase().trim();
                 
-                // Optional: Logic to check if the word is correct
-                console.log("AI Heard:", transcript);
+                if (userSaid === currentWord.toLowerCase()) {
+                    // CORRECT
+                    feedbackText.innerHTML = `🌟 Perfect! You said "${userSaid}"`;
+                    setTimeout(pickNewWord, 1500); // Wait 1.5 seconds then next word
+                } else {
+                    // INCORRECT
+                    attempts++;
+                    if (attempts < 2) {
+                        feedbackText.innerHTML = `❌ Almost! Try one more time.`;
+                        instruction.innerText = "Click to try again!";
+                    } else {
+                        feedbackText.innerHTML = `Moving on! That was "${currentWord}".`;
+                        setTimeout(pickNewWord, 2000); // Show answer, then move on
+                    }
+                }
             };
-    
-            // 5. Handle errors (like if the user stays silent)
-            recognition.onerror = (event) => {
-                feedbackText.innerText = "Try again! I didn't quite catch that.";
-                console.error("Speech Error:", event.error);
+
+            recognition.onerror = () => {
+                feedbackText.innerText = "I didn't hear anything. Click to try again!";
             };
         }
     </script>
