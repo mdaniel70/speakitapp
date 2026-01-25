@@ -1,349 +1,424 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Site Word Lab</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Teachers:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
-    
-    <style id="security-curtain">
-        body { display: none !important; }
-    </style>
-    <script>
-        (function() {
-            // --- CONFIGURATION ---
-            var allowedDomains = ["marknspark", "wix", "google", "localhost", "filesusr", "parastorage", "github"];
-            
-            // --- LOGIC ---
-            var referrer = document.referrer.toLowerCase();
-            
-            // 1. Check if we are in a safe place
-            var isOriginSafe = allowedDomains.some(function(domain) {
-                return referrer.indexOf(domain) > -1;
-            });
-            
-            // Allow if safe OR if referrer is empty (often happens during testing/direct open)
-            // We are relaxing security slightly to fix the blank screen issue
-            var shouldAllow = isOriginSafe || referrer === "";
+  <style id="security-curtain">
+    body { display: none !important; }
+  </style>
 
-            function liftCurtain() {
-                var curtain = document.getElementById('security-curtain');
-                if (curtain) {
-                    curtain.parentNode.removeChild(curtain);
-                }
-                document.body.style.display = "flex"; // Ensure layout works
-            }
+  <script>
+    (function() {
+        // --- CONFIGURATION ---
+        var allowedDomains = ["marknspark", "wix", "google", "localhost", "filesusr", "parastorage", "github"];
+        
+        // --- LOGIC ---
+        var referrer = document.referrer.toLowerCase();
+        
+        // Check if the user came from a safe place
+        var isOriginSafe = allowedDomains.some(function(domain) {
+            return referrer.indexOf(domain) > -1;
+        });
+        
+        // Allow if safe OR if referrer is empty (direct testing)
+        var shouldAllow = isOriginSafe || referrer === "";
 
-            if (shouldAllow) {
-                // PASS: Lift curtain when ready
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', liftCurtain);
-                } else {
-                    liftCurtain();
-                }
+        function liftCurtain() {
+            var curtain = document.getElementById('security-curtain');
+            if (curtain) curtain.parentNode.removeChild(curtain);
+            document.body.style.display = "flex"; 
+        }
+
+        if (shouldAllow) {
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', liftCurtain);
             } else {
-                // FAIL: Show error message
-                var showBlockMessage = function() {
-                    document.body.innerHTML = `
-                        <div style="font-family:sans-serif; text-align:center; padding:50px; width:100%;">
-                            <div style="background:white; padding:40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:inline-block;">
-                                <h2 style="color:#d32f2f;">Access Restricted</h2>
-                                <p>Please launch this tool from the <a href="https://www.marknspark.com">Mark 'n' Spark Portal</a>.</p>
-                            </div>
-                        </div>`;
-                    liftCurtain(); // Lift curtain so we can see the error
-                };
-                window.addEventListener('DOMContentLoaded', showBlockMessage);
+                liftCurtain();
             }
+        } else {
+            var showBlockMessage = function() {
+                document.body.innerHTML = `
+                    <div style="font-family:sans-serif; text-align:center; padding:50px; width:100%;">
+                        <div style="background:white; padding:40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:inline-block;">
+                            <h2 style="color:#d32f2f;">Access Restricted</h2>
+                            <p>Please launch this tool from the <a href="https://www.marknspark.com">Mark 'n' Spark Portal</a>.</p>
+                        </div>
+                    </div>`;
+                liftCurtain();
+            };
+            window.addEventListener('DOMContentLoaded', showBlockMessage);
+        }
 
-            // --- FAILSAFE ---
-            // If something goes wrong and screen is still blank after 2 seconds, force it open.
-            setTimeout(liftCurtain, 2000);
+        setTimeout(liftCurtain, 2000); // Failsafe
+    })();
+  </script>
 
-        })();
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Word Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Teachers:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
 
-    <style>
-        body { font-family: 'Teachers', sans-serif; }
-        .sparkle-text {
+  <style>
+      body { font-family: 'Teachers', sans-serif; }
+      .sticker { animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+      @keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+      .perspective-1000 { perspective: 1000px; }
+      #progress-bar { transition: width 0.5s ease-out; }
+      .sparkle-text {
             background: linear-gradient(45deg, #2563eb, #7c3aed, #f59e0b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-size: 200% 200%;
             animation: shine 3s ease infinite;
-        }
-        @keyframes shine {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .mic-active { animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
-        }
-        .hidden { display: none; }
-    </style>
+      }
+      @keyframes shine {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+      }
+  </style>
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col">
+<body class="bg-blue-50 min-h-screen flex flex-col items-center p-4">
 
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between h-16 items-center">
-                <div class="text-xl font-black text-slate-800 uppercase tracking-tight">
-                    Site Word <span class="text-purple-600">Lab</span>
+    <div class="w-full max-w-md flex flex-col gap-4 mb-8">
+        <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-purple-800">Site Word Lab</h1>
+            
+            <div class="flex gap-2">
+                <div id="score-display" class="bg-yellow-100 px-3 py-2 rounded-full shadow-sm font-bold text-yellow-700 border border-yellow-200 text-sm flex items-center">
+                    🏆 0/20
                 </div>
-                <div class="flex items-center gap-4">
-                    <div id="sticker-display" class="bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full font-bold text-sm">
-                        ⭐ 0 Stickers
-                    </div>
-                    <button id="mode-toggle" class="text-xs text-slate-400 hover:text-purple-600 font-medium">
-                        Teacher Mode
-                    </button>
+                <div id="sticker-count" class="bg-white px-3 py-2 rounded-full shadow-sm font-bold text-purple-600 text-sm flex items-center">
+                    ⭐ 0
                 </div>
             </div>
         </div>
-    </nav>
-
-    <main class="flex-grow flex flex-col items-center justify-center p-4">
         
-        <div id="teacher-view" class="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-8 hidden">
-            <h2 class="text-2xl font-bold text-slate-800 mb-2">Teacher Dashboard</h2>
-            <p class="text-slate-500 mb-6">Select the words to practice in this session:</p>
+        <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden shadow-inner">
+            <div id="progress-bar" class="bg-purple-600 h-2.5 w-0"></div>
+        </div>
+    </div>
+
+    <div class="relative w-80 h-96 perspective-1000">
+        <div id="card" class="w-full h-full bg-white rounded-3xl shadow-xl flex flex-col items-center justify-center p-8 text-center border-4 border-white transition-all">
             
-            <div class="flex justify-between mb-4">
-                <button onclick="selectAll()" class="text-sm text-purple-600 font-bold hover:underline">Select All</button>
-                <button onclick="clearAll()" class="text-sm text-slate-400 hover:text-slate-600">Clear All</button>
+            <div id="visualizer-container" style="width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; gap: 3px; margin-bottom: 20px;">
+                </div>
+
+            <div id="card-content" class="flex-grow flex items-center justify-center">
+                <h2 id="card-letters" class="text-6xl font-bold text-gray-800 tracking-tight">...</h2>
             </div>
 
-            <div id="word-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8 max-h-[400px] overflow-y-auto p-2 border border-slate-100 rounded-lg">
-                </div>
+            <p id="status-msg" class="mt-4 text-gray-500 font-medium uppercase tracking-widest text-sm text-center px-4">Loading...</p>
+        </div>
+    </div>
 
-            <button onclick="startSession()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition-transform transform active:scale-95">
-                Start Student Session
+    <div class="mt-12 flex flex-col items-center gap-4">
+        <button id="main-btn" class="bg-purple-600 hover:bg-purple-700 text-white text-xl font-bold py-6 px-12 rounded-2xl shadow-lg transform transition active:scale-95">
+            PUSH TO SPEAK
+        </button>
+        
+        <div class="flex gap-4">
+            <button onclick="playWordAudio()" class="text-slate-400 hover:text-purple-600 text-sm font-bold flex items-center gap-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                Hear Word
             </button>
         </div>
+    </div>
 
-        <div id="student-view" class="w-full max-w-2xl text-center hidden">
-            
-            <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border-4 border-slate-100 relative overflow-hidden">
-                <div class="mb-12 relative z-10">
-                    <h1 id="display-word" class="text-6xl md:text-8xl font-black text-slate-800 tracking-tight mb-4">
-                        ...
-                    </h1>
-                    <p class="text-slate-400 font-medium uppercase tracking-widest text-sm">Read the word above</p>
-                </div>
-
-                <div id="feedback-area" class="h-16 mb-8 flex items-center justify-center">
-                    <p id="feedback-text" class="text-xl text-slate-500 font-medium">
-                        Click the mic and say the word!
-                    </p>
-                </div>
-
-                <div class="flex flex-col items-center gap-6 relative z-10">
-                    <button id="mic-btn" class="w-24 h-24 rounded-full bg-purple-600 hover:bg-purple-500 text-white shadow-xl flex items-center justify-center transition-all transform hover:scale-105">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                        </svg>
-                    </button>
-                    
-                    <div class="flex gap-4">
-                        <button onclick="playWordAudio()" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold text-sm flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
-                            </svg>
-                            Hear Word
-                        </button>
-                        <button onclick="skipWord()" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold text-sm">
-                            Skip &rarr;
-                        </button>
-                    </div>
-                </div>
-
-                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-purple-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-                <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-            </div>
-
-            <button onclick="endSession()" class="mt-8 text-slate-400 hover:text-slate-600 text-sm font-medium underline">
-                End Session & Return to Teacher Mode
-            </button>
-        </div>
-    </main>
+    <div id="sticker-shelf" class="mt-12 flex flex-wrap justify-center gap-2 max-w-md"></div>
 
     <script>
         // --- DATA ---
+        // Your full list of sight words
         const allSightWords = [
             'the', 'of', 'and', 'a', 'to', 'in', 'is', 'you', 'that', 'it', 
             'he', 'was', 'for', 'on', 'are', 'as', 'with', 'his', 'they', 'I', 
             'at', 'be', 'this', 'have', 'from', 'or', 'one', 'had', 'by', 'word',
-            'but', 'not', 'what', 'all', 'were', 'we', 'when', 'your', 'can', 'said'
+            'but', 'not', 'what', 'all', 'were', 'we', 'when', 'your', 'can', 'said',
+            'there', 'use', 'an', 'each', 'which', 'she', 'do', 'how', 'their', 'if'
         ];
 
-        let selectedWords = [];
-        let practiceQueue = [];
-        let currentWord = "";
+        // --- STATE VARIABLES ---
+        const SESSION_LIMIT = 20;
+        let sessionWords = [];
+        let currentIndex = 0;
+        let score = 0;
         let stickers = 0;
+        let attempts = 0;
+
+        // Audio/Mic Variables
+        let isListening = false;
         let audioContext = null;
-        let isTeacherMode = true;
+        let analyser = null;
+        let dataArray = null;
+        let source = null;
+        let stream = null;
+        let animationId;
+        
+        // Speech Recognition
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+
+        // UI References
+        const mainBtn = document.getElementById('main-btn');
+        const statusMsg = document.getElementById('status-msg');
+        const cardLetters = document.getElementById('card-letters');
+        const card = document.getElementById('card');
 
         // --- INIT ---
-        window.addEventListener('DOMContentLoaded', () => {
-            renderTeacherGrid();
-            toggleMode(true);
+        window.addEventListener('load', () => {
+            // 1. Shuffle and pick 20 random words
+            sessionWords = shuffle([...allSightWords]).slice(0, SESSION_LIMIT);
+            
+            // 2. Setup Recognition Engine
+            if (SpeechRecognition) {
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.lang = 'en-US';
+                recognition.interimResults = false;
+
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript.toLowerCase().trim();
+                    handleVerdict(transcript);
+                };
+
+                recognition.onerror = (event) => {
+                    console.error("Speech Error", event);
+                    stopListening();
+                    statusMsg.innerText = "Didn't catch that. Try again!";
+                };
+                
+                recognition.onend = () => {
+                    if(isListening) stopListening();
+                };
+            } else {
+                alert("Browser not supported. Please use Chrome.");
+            }
+
+            // 3. Start first card
+            updateCard();
         });
 
-        // --- TEACHER MODE FUNCTIONS ---
-        function renderTeacherGrid() {
-            const grid = document.getElementById('word-grid');
-            if(!grid) return;
-            grid.innerHTML = '';
-            
-            allSightWords.forEach((word, index) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = "flex items-center space-x-2 bg-slate-50 p-2 rounded hover:bg-purple-50 transition-colors";
-                
-                const checkbox = document.createElement('input');
-                checkbox.type = "checkbox";
-                checkbox.id = `word-${index}`;
-                checkbox.value = word;
-                checkbox.checked = true;
-                checkbox.className = "w-5 h-5 text-purple-600 rounded focus:ring-purple-500 border-gray-300";
-                
-                const label = document.createElement('label');
-                label.htmlFor = `word-${index}`;
-                label.innerText = word;
-                label.className = "text-slate-700 font-medium cursor-pointer flex-grow";
-                
-                wrapper.appendChild(checkbox);
-                wrapper.appendChild(label);
-                grid.appendChild(wrapper);
-            });
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
         }
 
-        function selectAll() {
-            document.querySelectorAll('#word-grid input').forEach(cb => cb.checked = true);
+        // --- CORE LOGIC ---
+        function updateCard() {
+            // Update Progress Bar
+            const progressBar = document.getElementById('progress-bar');
+            const progress = (currentIndex / SESSION_LIMIT) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            // Reset Card UI
+            const currentWord = sessionWords[currentIndex];
+            cardLetters.innerText = currentWord;
+            cardLetters.classList.remove('sparkle-text');
+            card.classList.replace('border-green-400', 'border-white');
+            card.classList.replace('border-red-400', 'border-white');
+
+            statusMsg.innerText = "Read the word!";
+            statusMsg.className = "mt-4 text-gray-500 font-medium uppercase tracking-widest text-sm text-center px-4";
         }
 
-        function clearAll() {
-            document.querySelectorAll('#word-grid input').forEach(cb => cb.checked = false);
-        }
-
-        function startSession() {
-            const checkboxes = document.querySelectorAll('#word-grid input:checked');
-            selectedWords = Array.from(checkboxes).map(cb => cb.value);
-
-            if (selectedWords.length === 0) {
-                alert("Please select at least one word!");
-                return;
+        // --- BUTTON HANDLER ---
+        mainBtn.addEventListener('click', () => {
+            if (!isListening) {
+                startListening();
+            } else {
+                stopListening();
             }
-            practiceQueue = [...selectedWords].sort(() => Math.random() - 0.5);
-            toggleMode(false);
-            nextWord();
-        }
+        });
 
-        // --- STUDENT MODE FUNCTIONS ---
-        function nextWord() {
-            if (practiceQueue.length === 0) {
-                practiceQueue = [...selectedWords].sort(() => Math.random() - 0.5);
+        // --- LISTENING FUNCTIONS ---
+        async function startListening() {
+            if (!recognition) return;
+
+            try {
+                // 1. Start Mic Stream for Visualizer (Purple Bars)
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                setupVisualizer(stream);
+
+                // 2. Start Speech Recognition logic
+                recognition.start();
+
+                // 3. UI Updates
+                isListening = true;
+                mainBtn.innerText = "LISTENING...";
+                mainBtn.classList.replace('bg-purple-600', 'bg-red-500');
+                statusMsg.innerText = "Listening...";
+                
+            } catch (err) {
+                console.error(err);
+                statusMsg.innerText = "Microphone blocked!";
             }
-            currentWord = practiceQueue.pop();
-            
-            const display = document.getElementById('display-word');
-            display.innerText = currentWord;
-            display.classList.remove('sparkle-text');
-            
-            const feedback = document.getElementById('feedback-text');
-            feedback.innerText = "Click the mic and read the word!";
-            feedback.className = "text-xl text-slate-500 font-medium";
         }
 
+        function stopListening() {
+            isListening = false;
+            
+            // Stop Visualizer
+            if (stream) stream.getTracks().forEach(track => track.stop());
+            cancelAnimationFrame(animationId);
+            resetVisualizerBars();
+
+            // Stop Recognition
+            try { recognition.stop(); } catch(e) {}
+
+            // UI Reset
+            mainBtn.innerText = "PUSH TO SPEAK";
+            mainBtn.classList.replace('bg-red-500', 'bg-purple-600');
+        }
+
+        function handleVerdict(transcript) {
+            stopListening();
+            
+            const target = sessionWords[currentIndex].toLowerCase();
+            
+            // Logic: Does the spoken text contain the target word?
+            if (transcript.includes(target)) {
+                // SUCCESS
+                statusMsg.innerText = "YES! CORRECT!";
+                statusMsg.className = "mt-4 text-green-600 font-bold uppercase tracking-widest text-sm text-center px-4";
+                cardLetters.classList.add('sparkle-text');
+                card.classList.replace('border-white', 'border-green-400');
+                
+                if (attempts === 0) {
+                    score++;
+                    updateScoreDisplay();
+                    playSuccessChord();
+                } else {
+                    playDing();
+                }
+                
+                addSticker();
+                attempts = 0;
+                
+                setTimeout(moveToNextCard, 1500);
+
+            } else {
+                // FAIL
+                statusMsg.innerText = `I heard "${transcript}". Try again!`;
+                statusMsg.className = "mt-4 text-red-500 font-bold uppercase tracking-widest text-sm text-center px-4";
+                card.classList.replace('border-white', 'border-red-400');
+                
+                playErrorSound();
+                attempts++;
+                
+                // If they fail twice, we just move on to keep flow
+                if (attempts > 2) {
+                    setTimeout(moveToNextCard, 2000);
+                    attempts = 0;
+                }
+            }
+        }
+
+        function moveToNextCard() {
+            currentIndex++;
+            if (currentIndex >= SESSION_LIMIT) {
+                showFinalResults();
+            } else {
+                updateCard();
+            }
+        }
+
+        function showFinalResults() {
+            // Fill progress bar to 100% and turn green
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '100%';
+            progressBar.classList.replace('bg-purple-600', 'bg-green-500');
+
+            const percent = Math.round((score / SESSION_LIMIT) * 100);
+
+            cardLetters.innerHTML = `
+                <div class='text-3xl font-bold text-gray-800'>Session Complete!</div>
+                <div class='text-6xl mt-6 font-bold text-purple-600'>${score}/${SESSION_LIMIT}</div>
+                <div class='text-xl mt-2 text-gray-400'>${percent}% Correct</div>
+            `;
+            
+            statusMsg.innerText = "Great Practice!";
+            mainBtn.innerText = "START NEW SESSION";
+            mainBtn.onclick = () => location.reload();
+            
+            // Hide "Hear Word" button
+            document.querySelector('.flex.gap-4').style.display = 'none';
+        }
+
+        function updateScoreDisplay() {
+            document.getElementById('score-display').innerText = `🏆 ${score}/${SESSION_LIMIT}`;
+        }
+
+        // --- VISUALIZER LOGIC (Purple Bars) ---
+        function setupVisualizer(stream) {
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioContext.state === 'suspended') audioContext.resume();
+
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 64; 
+            source = audioContext.createMediaStreamSource(stream);
+            source.connect(analyser);
+            dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            // Draw bars if not already drawn
+            const container = document.getElementById('visualizer-container');
+            if(container.children.length === 0) {
+                for (let i = 0; i < 16; i++) {
+                    const bar = document.createElement('div');
+                    bar.style.width = '10px'; bar.style.height = '4px'; bar.style.backgroundColor = '#9333ea';
+                    bar.style.borderRadius = '5px'; bar.style.margin = '0 2px';
+                    bar.style.transition = 'height 0.1s ease';
+                    container.appendChild(bar);
+                }
+            }
+
+            function animate() {
+                if (isListening) {
+                    analyser.getByteFrequencyData(dataArray);
+                    const bars = container.children;
+                    for (let i = 0; i < bars.length; i++) {
+                        const val = dataArray[i * 2] || 0; 
+                        const h = (val / 255) * 60; 
+                        bars[i].style.height = Math.max(4, h) + "px";
+                    }
+                    animationId = requestAnimationFrame(animate);
+                }
+            }
+            animate();
+        }
+
+        function resetVisualizerBars() {
+            const container = document.getElementById('visualizer-container');
+            const bars = container.children;
+            for (let i = 0; i < bars.length; i++) {
+                bars[i].style.height = '4px';
+            }
+        }
+
+        // --- AUDIO HELPERS ---
         function playWordAudio() {
+            const word = sessionWords[currentIndex];
             if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(currentWord);
+                const utterance = new SpeechSynthesisUtterance(word);
                 utterance.rate = 0.9;
                 window.speechSynthesis.speak(utterance);
             }
         }
 
-        function skipWord() {
-            nextWord();
+        function playDing() {
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const ctx = audioContext;
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            osc.connect(g); g.connect(ctx.destination);
+            osc.frequency.value = 880;
+            g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.5);
+            osc.start(); osc.stop(ctx.currentTime + 0.5);
         }
 
-        // --- SPEECH RECOGNITION ---
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const micBtn = document.getElementById('mic-btn');
-
-        if (SpeechRecognition) {
-            const recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.lang = 'en-US';
-
-            micBtn.addEventListener('click', () => {
-                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioContext.state === 'suspended') audioContext.resume();
-
-                micBtn.classList.add('mic-active', 'bg-red-500');
-                micBtn.classList.remove('bg-purple-600');
-                document.getElementById('feedback-text').innerText = "Listening...";
-                recognition.start();
-            });
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript.toLowerCase().trim();
-                const target = currentWord.toLowerCase().trim();
-                
-                stopMicVisuals();
-
-                if (transcript.includes(target)) {
-                    handleSuccess();
-                } else {
-                    document.getElementById('feedback-text').innerHTML = `I heard <strong>"${transcript}"</strong>. Try again!`;
-                    document.getElementById('feedback-text').className = "text-xl text-red-500 font-bold";
-                    playErrorSound();
-                }
-            };
-
-            recognition.onerror = () => {
-                stopMicVisuals();
-                document.getElementById('feedback-text').innerText = "Didn't catch that. Click to try again.";
-            };
-
-            recognition.onend = stopMicVisuals;
-
-        } else {
-            micBtn.style.display = 'none';
-            document.getElementById('feedback-text').innerText = "Speech recognition not supported in this browser.";
-        }
-
-        function stopMicVisuals() {
-            micBtn.classList.remove('mic-active', 'bg-red-500');
-            micBtn.classList.add('bg-purple-600');
-        }
-
-        function handleSuccess() {
-            playSuccessChord();
-            addSticker();
-            
-            const display = document.getElementById('display-word');
-            display.classList.add('sparkle-text');
-            
-            const feedback = document.getElementById('feedback-text');
-            feedback.innerText = "Great job! ✨";
-            feedback.className = "text-xl text-green-600 font-bold";
-
-            setTimeout(() => {
-                nextWord();
-            }, 1500);
-        }
-
-        // --- AUDIO ---
         function playErrorSound() {
-            if (!audioContext) return;
+             if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const ctx = audioContext;
             const osc = ctx.createOscillator();
             const g = ctx.createGain();
@@ -355,7 +430,7 @@
         }
 
         function playSuccessChord() {
-            if (!audioContext) return;
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
             const ctx = audioContext;
             const now = ctx.currentTime;
             [523.25, 659.25, 783.99].forEach((freq, i) => {
@@ -374,30 +449,11 @@
 
         function addSticker() {
             stickers++;
-            document.getElementById('sticker-display').innerText = `⭐ ${stickers} Stickers`;
-        }
-
-        // --- NAVIGATION ---
-        document.getElementById('mode-toggle').addEventListener('click', () => {
-            isTeacherMode = !isTeacherMode;
-            toggleMode(isTeacherMode);
-        });
-
-        function endSession() {
-            toggleMode(true);
-        }
-
-        function toggleMode(teacher) {
-            const teacherView = document.getElementById('teacher-view');
-            const studentView = document.getElementById('student-view');
-            
-            if (teacher) {
-                teacherView.classList.remove('hidden');
-                studentView.classList.add('hidden');
-            } else {
-                teacherView.classList.add('hidden');
-                studentView.classList.remove('hidden');
-            }
+            document.getElementById('sticker-count').innerText = `⭐ ${stickers}`;
+            const s = document.createElement('div');
+            s.className = "text-3xl sticker";
+            s.innerText = "🌟"; 
+            document.getElementById('sticker-shelf').appendChild(s);
         }
     </script>
 </body>
