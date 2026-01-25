@@ -15,33 +15,55 @@
     </style>
     <script>
         (function() {
-            var allowedDomains = ["marknspark", "wix", "google", "localhost", "filesusr"];
+            // --- CONFIGURATION ---
+            var allowedDomains = ["marknspark", "wix", "google", "localhost", "filesusr", "parastorage", "github"];
+            
+            // --- LOGIC ---
             var referrer = document.referrer.toLowerCase();
+            
+            // 1. Check if we are in a safe place
             var isOriginSafe = allowedDomains.some(function(domain) {
                 return referrer.indexOf(domain) > -1;
             });
+            
+            // Allow if safe OR if referrer is empty (often happens during testing/direct open)
+            // We are relaxing security slightly to fix the blank screen issue
+            var shouldAllow = isOriginSafe || referrer === "";
 
-            if (isOriginSafe) {
-                var runUnlock = function() {
-                    var curtain = document.getElementById('security-curtain');
-                    if (curtain) curtain.parentNode.removeChild(curtain);
-                };
-                window.addEventListener('DOMContentLoaded', runUnlock);
-                window.onload = runUnlock;
+            function liftCurtain() {
+                var curtain = document.getElementById('security-curtain');
+                if (curtain) {
+                    curtain.parentNode.removeChild(curtain);
+                }
+                document.body.style.display = "flex"; // Ensure layout works
+            }
+
+            if (shouldAllow) {
+                // PASS: Lift curtain when ready
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', liftCurtain);
+                } else {
+                    liftCurtain();
+                }
             } else {
-                var style = document.createElement('style');
-                style.innerHTML = 'body { display: block !important; background-color: #f0f0f0; }';
-                document.head.appendChild(style);
-                document.addEventListener('DOMContentLoaded', function() {
+                // FAIL: Show error message
+                var showBlockMessage = function() {
                     document.body.innerHTML = `
-                        <div style="font-family:sans-serif; text-align:center; padding:50px;">
-                            <div style="background:white; padding:40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                        <div style="font-family:sans-serif; text-align:center; padding:50px; width:100%;">
+                            <div style="background:white; padding:40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); display:inline-block;">
                                 <h2 style="color:#d32f2f;">Access Restricted</h2>
                                 <p>Please launch this tool from the <a href="https://www.marknspark.com">Mark 'n' Spark Portal</a>.</p>
                             </div>
                         </div>`;
-                });
+                    liftCurtain(); // Lift curtain so we can see the error
+                };
+                window.addEventListener('DOMContentLoaded', showBlockMessage);
             }
+
+            // --- FAILSAFE ---
+            // If something goes wrong and screen is still blank after 2 seconds, force it open.
+            setTimeout(liftCurtain, 2000);
+
         })();
     </script>
 
@@ -155,8 +177,11 @@
 
     <script>
         // --- DATA ---
-        // Basic list of sight words
-        const allSightWords = ['spend', 'enjoy', 'awful', 'awe', 'usual', 'complain', 'auto', 'vacation', 'beautiful', 'beauty', 'flight', 'travel', 'rapid', 'repair', 'trouble','double', 'entrance', 'importance', 'important', 'carried', 'carry', 'lose', 'loss', 'fortune', 'empire', 'mayor', 'wait', 'beg', 'degree', 'prism', 'engine', 'visit', 'guest', 'guess', 'department', 'obtain', 'animal', 'family', 'favor', 'Mrs.', 'Mr.', 'Ms.', 'husband', 'amount', 'human', 'view', 'election', 'elect', 'clerk', 'though', 'support', 'does', 'goes', 'regard', 'escape', 'since', 'which', 'length','long', 'destroy', 'newspaper', 'daughter', 'naughty', 'caught', 'taught', 'answer', 'reply', 'oblige', 'sail', 'sale', 'cities', 'city', 'known', 'know', 'several', 'desire', 'nearly', 'sometimes', 'declare', 'engage', 'final', 'terrible', 'surprise', 'period', 'addition', 'employ', 'property', 'select', 'connection', 'connect', 'firm', 'region', 'convict', 'private', 'command', 'debate', 'factory', 'publish', 'represent', 'term', 'section', 'relative', 'progress (long)', 'progress (short)', 'entire', 'president', 'preside', 'measure', 'famous', 'fame', 'serve', 'estate', 'remember', 'either', 'effort', 'important', 'importance', 'present', 'action', 'justice', 'just', 'gentleman', 'gentle', 'enclose', 'await', 'suppose', 'wonderful', 'direction', 'forward', 'backward', 'although', 'prompt', 'attempt', 'whose', 'who', 'statement', 'state', 'perhaps', 'their', 'they', 'written', 'arrange', 'forenoon', 'before',  'lose', 'loose', 'combination', 'combine', 'avenue', 'neighbor', 'weigh', 'wear', 'entertain', 'salary', 'visitor', 'visit', 'publication', 'machine', 'engine', 'toward', 'success', 'drown', 'adopt', 'secure', 'honor', 'promise', 'wreck', 'prepare', 'vessel', 'busy', 'prefer', 'preference', 'illustrate', 'illustration', 'different', 'differ', 'object', 'provision', 'according', 'already', 'attention', 'education', 'director', 'direct', 'purpose', 'common', 'diamond', 'together', 'convention', 'increase', 'manner', 'feature', 'article', 'service', 'injure', 'injury', 'effect', 'distribute', 'general', 'tomorrow', 'consider', 'against', 'again', 'gain', 'complete', 'search', 'treasure', 'popular', 'Christmas', 'interest', 'often', 'stopped', 'stop', 'motion', 'theater', 'improvement', 'improve', 'century', 'cent', 'total', 'mention', 'arrive', 'supply', 'assist', 'difference', 'examination', 'examine', 'particular', 'affair', 'course', 'coarse', 'neither', 'local', 'marriage', 'marry', 'carriage', 'carry', 'further', 'serious', 'doubt', 'condition', 'government', 'govern', 'opinion', 'onion', 'union', 'familiar', 'behavior', 'companion', 'million', 'believe', 'system', 'possible', 'piece', 'peace', 'certain', 'witness', 'investigate', 'therefore', '', 'too', 'two', 'to', 'pleasant', 'please', 'guess', 'guest', 'cirular', 'circle', 'argument', 'argue', 'volume', 'organize', 'summon', 'official', 'officer', 'office', 'victim', 'estimate', 'accident', 'invitation', 'invite', 'accept', 'impossible', 'concern', 'associate', 'automobile', 'various', 'vary', 'very', 'decide', 'entitle', 'national', 'nation', 'recent', 'business', 'busy', 'refer', 'minute (time)', 'minute (little)', 'ought', 'absence', 'absent', 'conference', 'Wednesday', 'really', 'real', 'celebration', 'folk', 'folks', 'meant', 'mean', 'earliest', 'early', 'whether', 'distinguished', 'consideration', 'colonies', 'colony', 'assure', 'sure', 'relief', 'occupy', 'probably', 'foreign', 'expense', 'responsible', 'response', 'beginning', 'begin', 'application', 'apply', 'difficulty', 'difficult', 'scene', 'science', 'scissors', 'descend', 'descent', 'finally', 'finally', 'final', 'develop', 'circumstance', 'circumference', 'circle', 'issue', 'tissue', 'material', 'suggest', 'mere', 'senate', 'senator', 'senatorial', 'receive', 'respectfully', 'respecful', 'agreement', 'unfortunate', 'majority', 'major', 'elaborate', 'citizen', 'ncessary', 'necessity', 'divide', 'principal', 'principle', 'testimony', 'discussion', 'discuss', 'arrangement', 'arrange', 'reference', 'refer', 'evidence', 'experience', 'session', 'secretary', 'association', 'career', 'height', 'weight', 'organization', 'organize', 'emergency', 'appreciate', 'sincerely', 'sincere', 'athletic', 'athlete', 'extreme', 'practical', 'proceed', 'cordially', 'cordial', 'character', 'separate', 'February', 'library', 'immediate', 'conveient', 'receipt', 'preliminary', 'disappoint', 'especially','me', 'do', 'and', 'go', 'gather', 'giant', 'scold', 'scratch', 'seed', 'selfish', 'serious', 'shell', 'shovel', 'shriek', 'sibling', 'silent', 'simple', 'slippery', 'sly', 'sneaky', 'sob', 'spiral', 'slendid', 'sprinkle', 'squirm', 'startle', 'steep', 'stormy', 'striped', 'surround', 'switch', 'terrified', 'thick', 'thunder', 'ticket', 'timid', 'transportation', 'travel', 'trust', 'upset', 'weed', 'whimper', 'whirl', 'wicked', 'yank', 'glad', 'gleaming', 'glum', 'grab', 'grateful', 'grin', 'mask', 'misty', 'modern', 'mountain', 'narrow', 'obey', 'pain', 'passenger', 'pattern', 'pest', 'pretend', 'promise', 'rapid', 'remove', 'repeat', 'rescue', 'restart', 'return', 'ripe', 'rise', 'roar', 'rough', 'rusty', 'grip', 'groan', 'hatch', 'heap', 'hide', 'hobby', 'honest', 'howl',  'jealous', 'knob', 'lively', 'loosen', 'daily', 'dart', 'decorate', 'delighted', 'bashful', 'basket', 'batch', 'behave', 'belong', 'bend', 'blink', 'blush', 'bolt', 'borrow', 'bundle','denied', 'deserve', 'divide', 'dodge', 'drenched', 'drowsy', 'at', 'on', 'a', 'it', 'is', 'she', 'see', 'run', 'the', 'in', 'so', 'no', 'now', 'man', 'ten', 'bed', 'top', 'he', 'you', 'will', 'we', 'an', 'my', 'ago', 'my', 'up', 'last', 'not', 'us', 'am', 'good', 'ache', 'adjust', 'affordable', 'alarm', 'alone', 'apologize', 'appetite', 'applause', 'artistic', 'atmosphere', 'attach', 'little', 'ago', 'old', 'bad', 'red', 'of', 'be', 'but', 'this', 'all', 'your', 'you', 'out', 'time', 'may', 'into', 'him', 'today', 'look', 'did', 'like', 'lace', 'six', 'boy', 'book', 'by', 'have', 'are', 'had', 'over', 'must', 'make', 'school', 'cabin', 'caterpillar', 'caution', 'cave', 'champion', 'chat', 'cheat', 'chimney', 'compass', 'comlain', 'conductor', 'construct', 'costume', 'cozy', 'cranky', 'crash', 'creak', 'croak', 'crowded', 'cue', 'curved', 'enormous', 'equal', 'exclaim', 'exhausted', 'expensive', 'fancy', 'fasten', 'filthy', 'flat', 'flee', 'fog', 'footprint', 'forest', 'freezing','street', 'say', 'come', 'hand', 'ring', 'live (short)', 'live (long)', 'drill', 'late', 'let', 'climb', 'big', 'mother', 'three', 'land', 'cold', 'hot', 'hat', 'child', 'ice', 'play', 'see', 'sea', 'day', 'eat', 'sit', 'lot', 'box', 'belong', 'door', 'floor', 'yes', 'low', 'soft', 'stand', 'yard', 'bring', 'tell', 'five', 'ball', 'law', 'ask', 'just', 'gust', 'way', 'get', 'home', 'much', 'call', 'long', 'love', 'then', 'house', 'year', 'to', 'I', 'as', 'send', 'one', 'has', 'some', 'if', 'how', 'her', 'them', 'other', 'baby', 'well', 'about', 'men', 'man', 'for', 'ran', 'run', 'was', 'that', 'his', 'led', 'lay', 'nice', 'face', 'miss', 'ride', 'tree', 'sick', 'got', 'north', 'white', 'spent', 'foot', 'blow', 'block', 'spring', 'river', 'plant', 'cut', 'song', 'sing', 'sang', 'sung', 'winter', 'stone', 'free', 'lake', 'lace', 'page', 'nine', 'end', 'fall', 'feet', 'went', 'back', 'away', 'paper', 'put', 'each', 'soon', 'come', 'Sunday', 'show', 'Monday', 'moon', 'yet', 'find', 'give', 'new', 'letter', 'take', 'Mr.', 'Mister', 'after', 'thing', 'what', 'than', 'its', 'very', 'or', 'thank', 'dear', 'west', 'sold', 'told', 'best', 'form', 'far', 'gave', 'alike', 'add', 'seven', 'forget', 'happy', 'noon', 'think', 'sister', 'cast', 'card', 'south', 'deep', 'inside', 'blue', 'post', 'town', 'stay', 'grand', 'outside', 'dark', 'band', 'game', 'boat', 'rest', 'east', 'son', 'sun', 'help', 'hard', 'race', 'cover', 'fire', 'wire', 'tire', 'age', 'gold', 'read (present)', 'read (past)', 'red', 'fine', 'cannot', 'May', 'may', 'line', 'left', 'ship', 'train', 'saw', 'pay', 'large', 'near', 'down', 'why', 'bill', 'want', 'girl', 'part', 'still', 'placed', 'report', 'never', 'found', 'side', 'kind', 'life', 'here', 'car', 'word', 'every', 'under', 'most', 'made', 'said', 'say', 'work', 'our', 'more', 'when', 'from', 'form', 'wind (blows)', 'wind (a watch)', 'print', 'air', 'fill', 'along', 'lost', 'name', 'room', 'hope', 'same', 'glad', 'with', 'mine', 'became', 'brother', 'rain', 'keep', 'start', 'mail', 'male', 'female', 'eye', 'I', 'glass', 'party', 'upon', 'two', 'twin', 'twain', 'twine', 'twilight', 'they', 'would', 'any', 'many', 'could', 'should', 'would', 'city', 'only', 'where', 'week', 'weak', 'first', 'sent', 'cent', 'mile', 'seem', 'see', 'even', 'without', 'afternoon', 'Friday', 'hour', 'our', 'wife', 'state', 'July', 'head', 'story', 'open', 'short', 'lady', 'reach', 'better', 'water', 'round', 'cost', 'price', 'become', 'class', 'try', 'horse', 'care', 'try', 'move', 'delay', 'pound', 'behind', 'around', 'burn', 'camp', 'bear', 'bare', 'clear', 'clean', 'spell', 'poor', 'finish', 'hurt', 'maybe', 'across', 'tonight', 'tenth', 'sir', 'these', 'those', 'club', 'seen', 'see', 'felt', 'full', 'fail', 'set', 'stamp', 'light', 'coming', 'cent', 'sent', 'night', 'pass', 'shut', 'easy', 'easily', 'ease', 'catch', 'black', 'warm', 'unless', 'clothing', 'clothe', 'began', 'begin', 'begun', 'able', 'gone', 'go', 'done', 'do', 'suit', 'track', 'watch', 'dash', 'fell', 'fell', 'fight', 'buy', 'stop', 'walk', 'talk', 'balk', 'grant', 'soap', 'news', 'above', 'express', 'turn', 'lesson', 'half', 'father', 'anything', 'table', 'high', 'June', 'right', 'write', 'wrote', 'date', 'road', 'rode', 'ride', 'March', 'march', 'next', 'indeed', 'four', 'herself', 'power', 'wish', 'because', 'world', 'country', 'meet', 'meat', 'another', 'trip', 'list', 'people', 'ever', 'held', 'church', 'once', 'one', 'own', 'before', 'know', 'no', 'were', 'where', 'there', 'here', 'dead', 'leave', 'early', 'close (distance)', 'close (a door)', 'flower', 'nothing', 'ground', 'lead (present)', 'lead (past)', 'such', 'many', 'morning', 'however', 'mind', 'shall', 'alone', 'order', 'third', 'push', 'point', 'within', 'done', 'do', 'gone', 'go', 'body', 'trust', 'extra', 'dress', 'beside', 'teach', 'happen', 'begun', 'collect', 'file', 'provide', 'sight', 'stood', 'fix', 'born', 'goes', 'go', 'Tuesday', 'hold', 'drill', 'army', 'pretty', 'stole', 'income', 'bought', 'paid', 'pay', 'laid', 'lay', 'said', 'say', 'enter', 'railroad', 'unable', 'ticket', 'account', 'driven', 'real', 'recover','mountain', 'steamer', 'speak', 'past', 'might', 'begin', 'contract', 'deal', 'almost', 'all', 'brought', 'less', 'even', 'off', 'of', 'true', 'took', 'again', 'inform', 'both', 'heart', 'month', 'children', 'child', 'build', 'built', 'understand', 'follow', 'charge', 'says', 'member', 'case', 'while', 'also', 'return', 'those', 'office', 'great', 'Miss', 'miss', 'who', 'died', 'die', 'change', 'wire', 'few', 'please', 'picture', 'money', 'ready', 'omit', 'anyway', 'any', 'way', 'except', 'aunt', 'ant', 'capture', 'wrote', 'write', 'else', 'bridge', 'offer', 'suffer', 'center', 'front', 'rule', 'carry', 'chain', 'death', 'learn', 'wonder', 'tire', 'pari', 'pear', 'check', 'prove', 'heard', 'hear', 'itself', 'always', 'something', 'expect', 'need', 'thus', 'woman', 'women', 'young', 'fair', 'fare', 'dollar', 'evening', 'eve', 'plain', 'plane', 'broke', 'feel', 'sure', 'sugar', 'least', 'sorry', 'press', 'teacher', 'November', 'subject', 'April', 'history', 'cause', 'study', 'himself', 'matter', 'use', 'thought', 'person', 'nor', 'or', 'January', 'mean', 'vote', 'court', 'copy', 'act', 'been', 'be', 'yesterday', 'among', 'question', 'quest', 'doctor', 'hear', 'size', 'December', 'dozen', 'there', 'tax', 'number', 'October', 'reason', 'fifth','catch', 'black', 'warm', 'unless', 'clothing', 'agree', 'arrive', 'astronomy', 'atlas', 'award', 'aware', 'balance', 'banner', 'base', 'beach', 'besides', 'blast', 'bounce', 'brain', 'branch', 'brave', 'bright', 'cage', 'calm', 'career', 'center', 'cheer', 'chew', 'claw', 'cliff', 'club', 'collect', 'connect', 'core', 'corner', 'couple', 'crowd', 'curious', 'damp', 'dangerous', 'dawn', 'demolish', 'design', 'discard', 'dive', 'dome', 'doubt', 'dozen', 'earth', 'enemy', 'exactly', 'excess', 'factory', 'feast', 'field', 'flap', 'float', 'flood', 'fold', 'fresh', 'fighten', 'fuel', 'gap', 'gaze', 'gift', 'gravity', 'greedy', 'harm', 'herd', 'idea', 'insect', 'instrument', 'invent', 'island', 'leader', 'leap', 'lizard', 'local', 'lonely', 'luxury', 'mention', 'motor', 'nervous', 'net', 'nibble', 'notice', 'ocean', 'pack', 'pale', 'parade', 'peak', 'planet', 'proof', 'reflect', 'rumor', 'safe', 'scholar', 'seal', 'settle', 'share', 'shelter', 'shiver', 'shy', 'skill', 'slight', 'smooth', 'soil', 'stack', 'steady', 'strand', 'stream', 'team', 'telescope', 'tiny', 'tower', 'travel', 'tremble', 'universe', 'villiage', 'warn', 'weak', 'wealthy', 'whisper', 'wise', 'worry', 'zigzag', 'sword', 'clothe',  'daily', 'dart', 'decorate', 'delighted', 'denied', 'dodge', 'drenched', 'drowsy', 'deserve', 'begin', 'begun', 'able', 'gone', 'go', 'done', 'do', 'suit', 'track', 'watch', 'dash', 'fell', 'fight', 'buy', 'by', 'stop', 'walk', 'talk', 'balk', 'grant', 'soap', 'news', 'small', 'war', 'summer', 'above', 'ache', 'adjust', 'affordable', 'alarm', 'alone', 'apologize', 'appetite', 'applause', 'artistic', 'atmosphere', 'attach', 'express', 'turn', 'lesson', 'half', 'father', 'anything', 'table', 'high', 'June', 'right', 'write', 'wrote', 'date', 'road', 'rode', 'ride', 'March', 'march', 'next', 'indeed', 'four', 'herself', 'power', 'wish', 'because', 'world', 'country', 'meet', 'meat', 'another', 'trip', 'list', 'people', 'ever', 'held', 'church', 'once', 'one', 'own', 'before', 'know', 'no', 'were', 'where', 'there', 'here', 'dead', 'leave', 'early', 'close (distance)', 'close (a door)', 'flower', 'nothing', 'ground', 'lead (present)', 'lead (past)', 'such', 'many', 'morning', 'however', 'mind', 'shall', 'alone', 'order', 'third', 'push', 'point', 'within', 'done', 'do', 'gone', 'go', 'body', 'except', 'aunt', 'ant', 'capture', 'wrote', 'write', 'else', 'bridge', 'offer', 'suffer', 'center', 'front', 'chain', 'death', 'learn', 'wonder', 'tire', 'pair', 'pear', 'check', 'prove', 'heard', 'hear', 'inspect', 'itself', 'always', 'something', 'exprect', 'need', 'thus', 'woman', 'women', 'young', 'fair', 'fare', 'dollar', 'evening', 'eve', 'plain', 'plane', 'broke', 'feel', 'sure', 'sugar', 'least', 'sorry', 'press', 'teacher', 'November', 'subject', 'April', 'history', 'cause', 'study', 'himself', 'matter', 'use', 'thought', 'person', 'nor', 'or', 'January', 'mean', 'vote', 'court', 'copy', 'act', 'been', 'be', 'yesterday', 'among', 'question', 'quest', 'doctor', 'hear', 'size', 'December', 'dozen', 'there', 'number', 'October', 'reason', 'fifth', 'eight', 'ate', 'afraid', 'uncle', 'rather', 'comfort', 'elect', 'aboard', 'rail', 'shed', 'retire', 'refuse', 'district', 'restrain', 'royal','objection', 'pleasure', 'measure', 'treasure', 'navy', 'population', 'proper', 'judge', 'weather', 'whether', 'worth', 'contain', 'figure', 'sudden', 'forty', 'fourth', 'instead', 'throw', 'threw', 'personal', 'everything', 'rate', 'chief', 'perfect', 'second', 'slide', 'farther', 'duty', 'intend', 'company', 'quite', 'quit', 'quiet', 'none', 'knew', 'know', 'remain', 'direct', 'appear', 'liberty', 'enough', 'fact', 'board', 'September', 'station', 'attend', 'between', 'public', 'music', 'picnic', 'friend', 'during', 'endure', 'through', 'police', 'until', 'madam', 'truly', 'true', 'whole', 'hole', 'address', 'request', 'raise', 'August', 'Tuesday', 'goes', 'does', 'struck', 'getting', 'get', 'Thursday', 'Saturday', 'spend', 'enjoy', 'awful', 'awe', 'usual', 'complain', 'auto', 'vacation', 'beautiful', 'beauty', 'flight', 'travel', 'rapid', 'repair', 'trouble', 'double', 'entrance',  'importance', 'important', 'carried', 'carry', 'lose', 'loss', 'fortune', 'empire', 'mayor', 'wait', 'beg', 'degree', 'bison', 'engine', 'visit', 'guest', 'guess', 'department', 'obtain', 'animal', 'family', 'favor', 'Mrs.', 'Mr.', 'Ms.', 'husband', 'amount', 'human', 'view', 'election', 'elect', 'clerk', 'though', 'support', 'does', 'goes', 'regard', 'escape', 'since', 'which', 'length', 'long', 'destroy', 'newspaper', 'daughter', 'naughty', 'caught', 'taught', 'answer', 'reply', 'oblige', 'sail', 'sale', 'cities', 'city', 'known', 'know', 'several', 'desire', 'arrest', 'themselves', 'self', 'calf', 'calves', 'half', 'halves', 'special', 'especially', 'women', 'present (gift)', 'present (display)', 'action', 'justice', 'just', 'gentleman', 'gentle', 'enclose', 'await', 'suppose', 'wonderful', 'direction', 'forward', 'backward', 'although', 'prompt', 'attempt', 'whose', 'who', 'statement', 'state', 'perhaps', 'their', 'they', 'written', 'arrange', 'nearly', 'sometimes', 'declare', 'engage', 'final', 'terrible', 'surprise', 'period', 'addition', 'employ', 'property', 'select', 'connection', 'connect', 'firm', 'region', 'religion', 'convict', 'private', 'command', 'debate', 'crowd', 'factory', 'pubish', 'represent', 'term', 'section', 'relative', 'progress', 'prgress', 'entire', 'presdident', 'preside', 'measure', 'famous', 'fame', 'serve', 'estate', 'remember', 'either', 'effort', 'important', 'importance', 'due', 'dew', 'include', 'running', 'run', 'allow', 'position', 'field', 'ledge', 'claim', 'primary', 'result', 'Saturday', 'appoint', 'information', 'whom', 'who'];
+        const allSightWords = [
+            'the', 'of', 'and', 'a', 'to', 'in', 'is', 'you', 'that', 'it', 
+            'he', 'was', 'for', 'on', 'are', 'as', 'with', 'his', 'they', 'I', 
+            'at', 'be', 'this', 'have', 'from', 'or', 'one', 'had', 'by', 'word',
+            'but', 'not', 'what', 'all', 'were', 'we', 'when', 'your', 'can', 'said'
         ];
 
         let selectedWords = [];
@@ -169,16 +194,16 @@
         // --- INIT ---
         window.addEventListener('DOMContentLoaded', () => {
             renderTeacherGrid();
-            toggleMode(true); // Start in teacher mode
+            toggleMode(true);
         });
 
         // --- TEACHER MODE FUNCTIONS ---
         function renderTeacherGrid() {
             const grid = document.getElementById('word-grid');
+            if(!grid) return;
             grid.innerHTML = '';
             
             allSightWords.forEach((word, index) => {
-                // Create checkbox container
                 const wrapper = document.createElement('div');
                 wrapper.className = "flex items-center space-x-2 bg-slate-50 p-2 rounded hover:bg-purple-50 transition-colors";
                 
@@ -186,7 +211,7 @@
                 checkbox.type = "checkbox";
                 checkbox.id = `word-${index}`;
                 checkbox.value = word;
-                checkbox.checked = true; // Default selected
+                checkbox.checked = true;
                 checkbox.className = "w-5 h-5 text-purple-600 rounded focus:ring-purple-500 border-gray-300";
                 
                 const label = document.createElement('label');
@@ -209,7 +234,6 @@
         }
 
         function startSession() {
-            // Get selected words
             const checkboxes = document.querySelectorAll('#word-grid input:checked');
             selectedWords = Array.from(checkboxes).map(cb => cb.value);
 
@@ -217,10 +241,7 @@
                 alert("Please select at least one word!");
                 return;
             }
-
-            // Shuffle words for the queue
             practiceQueue = [...selectedWords].sort(() => Math.random() - 0.5);
-            
             toggleMode(false);
             nextWord();
         }
@@ -228,16 +249,17 @@
         // --- STUDENT MODE FUNCTIONS ---
         function nextWord() {
             if (practiceQueue.length === 0) {
-                // Reshuffle if empty
                 practiceQueue = [...selectedWords].sort(() => Math.random() - 0.5);
             }
             currentWord = practiceQueue.pop();
             
-            // Update UI
-            document.getElementById('display-word').innerText = currentWord;
-            document.getElementById('display-word').classList.remove('sparkle-text');
-            document.getElementById('feedback-text').innerText = "Click the mic and read the word!";
-            document.getElementById('feedback-text').className = "text-xl text-slate-500 font-medium";
+            const display = document.getElementById('display-word');
+            display.innerText = currentWord;
+            display.classList.remove('sparkle-text');
+            
+            const feedback = document.getElementById('feedback-text');
+            feedback.innerText = "Click the mic and read the word!";
+            feedback.className = "text-xl text-slate-500 font-medium";
         }
 
         function playWordAudio() {
@@ -262,7 +284,6 @@
             recognition.lang = 'en-US';
 
             micBtn.addEventListener('click', () => {
-                // Init Audio Context for sounds (needs user gesture)
                 if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioContext.state === 'suspended') audioContext.resume();
 
@@ -279,17 +300,15 @@
                 stopMicVisuals();
 
                 if (transcript.includes(target)) {
-                    // SUCCESS
                     handleSuccess();
                 } else {
-                    // FAILURE
                     document.getElementById('feedback-text').innerHTML = `I heard <strong>"${transcript}"</strong>. Try again!`;
                     document.getElementById('feedback-text').className = "text-xl text-red-500 font-bold";
                     playErrorSound();
                 }
             };
 
-            recognition.onerror = (event) => {
+            recognition.onerror = () => {
                 stopMicVisuals();
                 document.getElementById('feedback-text').innerText = "Didn't catch that. Click to try again.";
             };
@@ -313,15 +332,16 @@
             const display = document.getElementById('display-word');
             display.classList.add('sparkle-text');
             
-            document.getElementById('feedback-text').innerText = "Great job! ✨";
-            document.getElementById('feedback-text').className = "text-xl text-green-600 font-bold";
+            const feedback = document.getElementById('feedback-text');
+            feedback.innerText = "Great job! ✨";
+            feedback.className = "text-xl text-green-600 font-bold";
 
             setTimeout(() => {
                 nextWord();
             }, 1500);
         }
 
-        // --- AUDIO & GAMIFICATION ---
+        // --- AUDIO ---
         function playErrorSound() {
             if (!audioContext) return;
             const ctx = audioContext;
