@@ -2,41 +2,58 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>
-  (function() {
-      // 1. LIST YOUR SAFE ZONES
-      // Add "marknspark.com", "wix", and "google" (for previews)
-      const allowedDomains = ["marknspark.com", "wix.com", "editor.wix.com", "google.com"];
-      
-      const referrer = document.referrer.toLowerCase();
-      const isInIframe = (window.self !== window.top);
+   <style id="security-curtain">
+    body { display: none !important; }
+  </style>
 
-      // 2. THE CHECK
-      // We allow access ONLY if:
-      // A) It is inside an iframe (embedded) AND
-      // B) It is coming from one of your allowed domains
-      
-      // (Note: If referrer is empty, we assume it's a direct link and BLOCK it)
-      const isAllowed = isInIframe && allowedDomains.some(domain => referrer.includes(domain));
+  <script>
+    (function() {
+        // LIST YOUR SAFE ZONES
+        // Add "marknspark" and your wix/google editor URLs
+        var allowedDomains = ["marknspark", "wix", "google", "localhost"];
+        
+        var referrer = document.referrer.toLowerCase();
+        var isInIframe = (window.self !== window.top);
+        
+        // CHECK: Is it in a frame AND from a safe place?
+        // Note: We check if ANY allowed domain is found in the referrer
+        var isOriginSafe = allowedDomains.some(function(domain) {
+            return referrer.indexOf(domain) > -1;
+        });
 
-      if (!isAllowed) {
-          // BLOCK ACCESS
-          document.body.innerHTML = `
-              <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#f0f0f0; font-family:sans-serif;">
-                  <div style="text-align:center; padding:40px; background:white; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
-                      <h2 style="color:#d32f2f; margin-bottom:10px;">Access Restricted</h2>
-                      <p>This tool must be accessed through the Mark 'n' Spark Portal.</p>
-                      <br>
-                      <a href="https://www.marknspark.com" style="background:#0073e6; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Return to Login</a>
-                  </div>
-              </div>
-          `;
-          // Stop all other scripts from running
-          document.head.innerHTML = ""; 
-          throw new Error("Direct access attempted - blocked by security script.");
-      }
-  })();
-</script>
+        // DECISION TIME
+        if (isInIframe && isOriginSafe) {
+            // PASS: Remove the curtain and let the page load
+            window.onload = function() {
+                var curtain = document.getElementById('security-curtain');
+                if (curtain) curtain.parentNode.removeChild(curtain);
+            };
+        } else {
+            // FAIL: Keep body hidden, but show a specific error message
+            // We overwrite the document so the game code never even runs
+            document.write(`
+                <div style="
+                    display:flex; justify-content:center; align-items:center; 
+                    height:100vh; background:#f0f0f0; font-family:sans-serif;
+                ">
+                    <div style="
+                        text-align:center; padding:40px; background:white; 
+                        border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);
+                    ">
+                        <h2 style="color:#d32f2f;">Access Restricted</h2>
+                        <p>This tool is only available via the Mark 'n' Spark Portal.</p>
+                        <a href="https://www.marknspark.com" style="
+                            background:#0073e6; color:white; padding:10px 20px; 
+                            text-decoration:none; border-radius:5px;
+                        ">Go to Login</a>
+                    </div>
+                </div>
+            `);
+            // Stop all further processing
+            window.stop();
+        }
+    })();
+  </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
