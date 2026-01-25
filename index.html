@@ -2,6 +2,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+  (function() {
+      // 1. LIST YOUR SAFE ZONES
+      // Add "marknspark.com", "wix", and "google" (for previews)
+      const allowedDomains = ["marknspark.com", "wix.com", "editor.wix.com", "google.com"];
+      
+      const referrer = document.referrer.toLowerCase();
+      const isInIframe = (window.self !== window.top);
+
+      // 2. THE CHECK
+      // We allow access ONLY if:
+      // A) It is inside an iframe (embedded) AND
+      // B) It is coming from one of your allowed domains
+      
+      // (Note: If referrer is empty, we assume it's a direct link and BLOCK it)
+      const isAllowed = isInIframe && allowedDomains.some(domain => referrer.includes(domain));
+
+      if (!isAllowed) {
+          // BLOCK ACCESS
+          document.body.innerHTML = `
+              <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#f0f0f0; font-family:sans-serif;">
+                  <div style="text-align:center; padding:40px; background:white; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                      <h2 style="color:#d32f2f; margin-bottom:10px;">Access Restricted</h2>
+                      <p>This tool must be accessed through the Mark 'n' Spark Portal.</p>
+                      <br>
+                      <a href="https://www.marknspark.com" style="background:#0073e6; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Return to Login</a>
+                  </div>
+              </div>
+          `;
+          // Stop all other scripts from running
+          document.head.innerHTML = ""; 
+          throw new Error("Direct access attempted - blocked by security script.");
+      }
+  })();
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
