@@ -2,39 +2,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <style id="security-curtain">
+  <style id="security-curtain">
     body { display: none !important; }
   </style>
 
   <script>
     (function() {
-        // LIST YOUR SAFE ZONES
-        // Add "marknspark" and your wix/google editor URLs
+        // --- CONFIGURATION ---
+        // Add your domain keywords here.
+        // "marknspark" covers marknspark.com
+        // "wix" covers wix.com and editor.wix.com
         var allowedDomains = ["marknspark", "wix", "google", "localhost"];
         
+        // --- LOGIC ---
         var referrer = document.referrer.toLowerCase();
         var isInIframe = (window.self !== window.top);
         
-        // CHECK: Is it in a frame AND from a safe place?
-        // Note: We check if ANY allowed domain is found in the referrer
+        // Check if the user came from a safe place
         var isOriginSafe = allowedDomains.some(function(domain) {
             return referrer.indexOf(domain) > -1;
         });
 
-        // DECISION TIME
+        // --- DECISION ---
         if (isInIframe && isOriginSafe) {
-            // PASS: Remove the curtain and let the page load
+            // PASS: Lift the curtain!
             window.onload = function() {
                 var curtain = document.getElementById('security-curtain');
                 if (curtain) curtain.parentNode.removeChild(curtain);
             };
         } else {
-            // FAIL: Keep body hidden, but show a specific error message
-            // We overwrite the document so the game code never even runs
+            // FAIL: 
+            // 1. Stop the browser from loading the rest of the game code
+            window.stop();
+
+            // 2. Show the Error Message (We must force the body to be visible again)
             document.write(`
+                <style>body { display: block !important; background-color: #f0f0f0; }</style>
                 <div style="
                     display:flex; justify-content:center; align-items:center; 
-                    height:100vh; background:#f0f0f0; font-family:sans-serif;
+                    height:100vh; font-family:sans-serif;
                 ">
                     <div style="
                         text-align:center; padding:40px; background:white; 
@@ -42,15 +48,14 @@
                     ">
                         <h2 style="color:#d32f2f;">Access Restricted</h2>
                         <p>This tool is only available via the Mark 'n' Spark Portal.</p>
+                        <br>
                         <a href="https://www.marknspark.com" style="
                             background:#0073e6; color:white; padding:10px 20px; 
                             text-decoration:none; border-radius:5px;
-                        ">Go to Login</a>
+                        ">Return to Login</a>
                     </div>
                 </div>
             `);
-            // Stop all further processing
-            window.stop();
         }
     })();
   </script>
