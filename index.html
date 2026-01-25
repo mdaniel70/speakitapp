@@ -9,12 +9,11 @@
   <script>
     (function() {
         // --- CONFIGURATION ---
-        // We added "filesusr" and "parastorage" because Wix uses these internally
-        var allowedDomains = ["marknspark", "wix", "google", "localhost", "filesusr", "parastorage"];
+        // Add "marknspark", "wix", "google"
+        var allowedDomains = ["marknspark", "wix", "google", "localhost", "filesusr"];
         
         // --- LOGIC ---
         var referrer = document.referrer.toLowerCase();
-        var isInIframe = (window.self !== window.top);
         
         // Check if the user came from a safe place
         var isOriginSafe = allowedDomains.some(function(domain) {
@@ -22,41 +21,34 @@
         });
 
         // --- DECISION TIME ---
+        // We removed "isInIframe" from the requirements. 
+        // Now, we ONLY care if the Referrer is correct.
         
-        // CASE 1: PASS (Allow Access)
-        if (isInIframe && isOriginSafe) {
-            // Remove the curtain immediately so the game shows
+        if (isOriginSafe) {
+            // PASS: Lift the curtain
             var runUnlock = function() {
                 var curtain = document.getElementById('security-curtain');
                 if (curtain) curtain.parentNode.removeChild(curtain);
             };
-            
-            // Try running immediately, and also on load just in case
-            runUnlock();
             window.addEventListener('DOMContentLoaded', runUnlock);
             window.onload = runUnlock;
-            
         } 
-        // CASE 2: FAIL (Block Access)
         else {
-            // Force the body to be visible so we can see the error
+            // FAIL: Show the error
             var style = document.createElement('style');
             style.innerHTML = 'body { display: block !important; background-color: #f0f0f0; }';
             document.head.appendChild(style);
             
-            // Show the error message (WITH DEBUG INFO)
-            // This will help us if it fails again
             document.addEventListener('DOMContentLoaded', function() {
                 document.body.innerHTML = `
                     <div style="font-family:sans-serif; text-align:center; padding:50px;">
-                        <div style="background:white; padding:40px; border-radius:10px; display:inline-block; border: 2px solid #d32f2f;">
+                        <div style="background:white; padding:40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
                             <h2 style="color:#d32f2f;">Access Restricted</h2>
-                            <p>This tool is only available via the Mark 'n' Spark Portal.</p>
-                            <hr style="margin: 20px 0; opacity: 0.2;">
-                            <p style="font-size: 12px; color: #666;">
-                                <strong>Debug Info:</strong><br>
-                                Referrer detected: "${referrer || 'Empty'}"<br>
-                                In Iframe: ${isInIframe}
+                            <p>You cannot access this tool directly.</p>
+                            <p>Please log in at <a href="https://www.marknspark.com">Mark 'n' Spark</a> and click the launch button.</p>
+                            <hr style="margin:20px 0; opacity:0.2">
+                             <p style="font-size: 12px; color: #666;">
+                                <strong>Debug:</strong> Access denied. Referrer was: "${referrer || 'Empty'}"
                             </p>
                         </div>
                     </div>
