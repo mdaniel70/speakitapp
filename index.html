@@ -2,67 +2,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <style id="security-curtain">
-    body { display: none !important; }
-  </style>
-
-  <script>
-    (function() {
-        // --- CONFIGURATION ---
-        // Add "marknspark", "wix", "google"
-        var allowedDomains = ["marknspark", "wix", "google", "localhost", "filesusr"];
-        
-        // --- LOGIC ---
-        var referrer = document.referrer.toLowerCase();
-        
-        // Check if the user came from a safe place
-        var isOriginSafe = allowedDomains.some(function(domain) {
-            return referrer.indexOf(domain) > -1;
-        });
-
-        // --- DECISION TIME ---
-        // We removed "isInIframe" from the requirements. 
-        // Now, we ONLY care if the Referrer is correct.
-        
-        if (isOriginSafe) {
-            // PASS: Lift the curtain
-            var runUnlock = function() {
-                var curtain = document.getElementById('security-curtain');
-                if (curtain) curtain.parentNode.removeChild(curtain);
-            };
-            window.addEventListener('DOMContentLoaded', runUnlock);
-            window.onload = runUnlock;
-        } 
-        else {
-            // FAIL: Show the error
-            var style = document.createElement('style');
-            style.innerHTML = 'body { display: block !important; background-color: #f0f0f0; }';
-            document.head.appendChild(style);
-            
-            document.addEventListener('DOMContentLoaded', function() {
-                document.body.innerHTML = `
-                    <div style="font-family:sans-serif; text-align:center; padding:50px;">
-                        <div style="background:white; padding:40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
-                            <h2 style="color:#d32f2f;">Access Restricted</h2>
-                            <p>You cannot access this tool directly.</p>
-                            <p>Please log in at <a href="https://www.marknspark.com">Mark 'n' Spark</a> and click the launch button.</p>
-                            <hr style="margin:20px 0; opacity:0.2">
-                             <p style="font-size: 12px; color: #666;">
-                                <strong>Debug:</strong> Access denied. Referrer was: "${referrer || 'Empty'}"
-                            </p>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-    })();
-  </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Site Word Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Teachers:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+    
+    <style id="security-curtain">
+        body { display: none !important; }
+    </style>
+    <script>
+        (function() {
+            var allowedDomains = ["marknspark", "wix", "google", "localhost", "filesusr"];
+            var referrer = document.referrer.toLowerCase();
+            var isOriginSafe = allowedDomains.some(function(domain) {
+                return referrer.indexOf(domain) > -1;
+            });
+
+            if (isOriginSafe) {
+                var runUnlock = function() {
+                    var curtain = document.getElementById('security-curtain');
+                    if (curtain) curtain.parentNode.removeChild(curtain);
+                };
+                window.addEventListener('DOMContentLoaded', runUnlock);
+                window.onload = runUnlock;
+            } else {
+                var style = document.createElement('style');
+                style.innerHTML = 'body { display: block !important; background-color: #f0f0f0; }';
+                document.head.appendChild(style);
+                document.addEventListener('DOMContentLoaded', function() {
+                    document.body.innerHTML = `
+                        <div style="font-family:sans-serif; text-align:center; padding:50px;">
+                            <div style="background:white; padding:40px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);">
+                                <h2 style="color:#d32f2f;">Access Restricted</h2>
+                                <p>Please launch this tool from the <a href="https://www.marknspark.com">Mark 'n' Spark Portal</a>.</p>
+                            </div>
+                        </div>`;
+                });
+            }
+        })();
+    </script>
+
     <style>
         body { font-family: 'Teachers', sans-serif; }
         .sparkle-text {
@@ -77,182 +59,329 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        .feature-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .pulse-red { animation: pulse 1.5s infinite; }
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        .mic-active { animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="bg-slate-50">
+<body class="bg-slate-50 min-h-screen flex flex-col">
 
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-20">
-                <div class="flex items-center">
-                    <div class="bg-purple-400 p-2 rounded-lg mr-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                        </svg>
-                    </div>
-                    <span class="text-2xl font-black tracking-tighter text-slate-900 uppercase">Speak <span class="text-purple-600">IT!</span></span>
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16 items-center">
+                <div class="text-xl font-black text-slate-800 uppercase tracking-tight">
+                    Site Word <span class="text-purple-600">Lab</span>
                 </div>
-                <div class="flex items-center text-slate-500 font-bold">
-                    WORD: <span id="current-count" class="ml-2 text-purple-600">0</span>/20
+                <div class="flex items-center gap-4">
+                    <div id="sticker-display" class="bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full font-bold text-sm">
+                        ⭐ 0 Stickers
+                    </div>
+                    <button id="mode-toggle" class="text-xs text-slate-400 hover:text-purple-600 font-medium">
+                        Teacher Mode
+                    </button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <header id="app-header" class="relative overflow-hidden bg-white pt-16 pb-24 border-b border-slate-100 text-center">
-        <h1 class="text-5xl md:text-7xl font-black text-slate-900 leading-tight mb-6 uppercase">
-            Speak the words you <span class="text-purple-600">SEE</span>
-        </h1>
-        <p class="text-xl text-slate-500">Read 20 words to get your score!</p>
-    </header>
-
-    <section class="max-w-7xl mx-auto p-4 md:p-8">
-        <div id="game-card" class="feature-card bg-white p-8 md:p-16 rounded-3xl border-2 border-slate-200 text-center max-w-fit mx-auto min-w-[320px]">
-            <div id="start-lab-btn" class="cursor-pointer">
-                <div id="mic-circle" class="w-20 h-20 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 transition-all duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                    </svg>
-                </div>
-                <div id="word-to-say" class="text-6xl md:text-8xl font-black text-slate-900 mb-4 whitespace-nowrap">---</div>
-                <p id="instruction" class="text-slate-500 text-xl mb-8 font-bold">Click to start!</p>
+    <main class="flex-grow flex flex-col items-center justify-center p-4">
+        
+        <div id="teacher-view" class="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-8 hidden">
+            <h2 class="text-2xl font-bold text-slate-800 mb-2">Teacher Dashboard</h2>
+            <p class="text-slate-500 mb-6">Select the words to practice in this session:</p>
+            
+            <div class="flex justify-between mb-4">
+                <button onclick="selectAll()" class="text-sm text-purple-600 font-bold hover:underline">Select All</button>
+                <button onclick="clearAll()" class="text-sm text-slate-400 hover:text-slate-600">Clear All</button>
             </div>
-            <div id="speech-feedback" class="p-6 bg-purple-50 rounded-xl text-purple-800 font-bold text-2xl hidden">Ready!</div>
+
+            <div id="word-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8 max-h-[400px] overflow-y-auto p-2 border border-slate-100 rounded-lg">
+                </div>
+
+            <button onclick="startSession()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl text-lg shadow-lg transition-transform transform active:scale-95">
+                Start Student Session
+            </button>
         </div>
 
-        <div id="results-card" class="hidden feature-card bg-white p-12 rounded-3xl border-2 border-slate-400 text-center max-w-xl mx-auto">
-            <h2 class="text-4xl font-black mb-4">Session Complete!</h2>
-            <div class="text-8xl font-black text-purple-600 mb-6" id="final-percentage">0%</div>
-            <p class="text-2xl text-slate-600 mb-8" id="final-stats">You got 0 out of 20 correct!</p>
-            <button onclick="location.reload()" class="bg-purple-600 text-white px-8 py-4 rounded-full font-black text-xl uppercase hover:bg-purple-700 transition">Try Again</button>
+        <div id="student-view" class="w-full max-w-2xl text-center hidden">
+            
+            <div class="bg-white rounded-3xl shadow-2xl p-8 md:p-12 border-4 border-slate-100 relative overflow-hidden">
+                <div class="mb-12 relative z-10">
+                    <h1 id="display-word" class="text-6xl md:text-8xl font-black text-slate-800 tracking-tight mb-4">
+                        ...
+                    </h1>
+                    <p class="text-slate-400 font-medium uppercase tracking-widest text-sm">Read the word above</p>
+                </div>
+
+                <div id="feedback-area" class="h-16 mb-8 flex items-center justify-center">
+                    <p id="feedback-text" class="text-xl text-slate-500 font-medium">
+                        Click the mic and say the word!
+                    </p>
+                </div>
+
+                <div class="flex flex-col items-center gap-6 relative z-10">
+                    <button id="mic-btn" class="w-24 h-24 rounded-full bg-purple-600 hover:bg-purple-500 text-white shadow-xl flex items-center justify-center transition-all transform hover:scale-105">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                    </button>
+                    
+                    <div class="flex gap-4">
+                        <button onclick="playWordAudio()" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold text-sm flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                            </svg>
+                            Hear Word
+                        </button>
+                        <button onclick="skipWord()" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg font-bold text-sm">
+                            Skip &rarr;
+                        </button>
+                    </div>
+                </div>
+
+                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-purple-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+                <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-100 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+            </div>
+
+            <button onclick="endSession()" class="mt-8 text-slate-400 hover:text-slate-600 text-sm font-medium underline">
+                End Session & Return to Teacher Mode
+            </button>
         </div>
-    </section>
+    </main>
 
     <script>
-        const sightWords = ['spend', 'enjoy', 'awful', 'awe', 'usual', 'complain', 'auto', 'vacation', 'beautiful', 'beauty', 'flight', 'travel', 'rapid', 'repair', 'trouble','double', 'entrance', 'importance', 'important', 'carried', 'carry', 'lose', 'loss', 'fortune', 'empire', 'mayor', 'wait', 'beg', 'degree', 'prism', 'engine', 'visit', 'guest', 'guess', 'department', 'obtain', 'animal', 'family', 'favor', 'Mrs.', 'Mr.', 'Ms.', 'husband', 'amount', 'human', 'view', 'election', 'elect', 'clerk', 'though', 'support', 'does', 'goes', 'regard', 'escape', 'since', 'which', 'length','long', 'destroy', 'newspaper', 'daughter', 'naughty', 'caught', 'taught', 'answer', 'reply', 'oblige', 'sail', 'sale', 'cities', 'city', 'known', 'know', 'several', 'desire', 'nearly', 'sometimes', 'declare', 'engage', 'final', 'terrible', 'surprise', 'period', 'addition', 'employ', 'property', 'select', 'connection', 'connect', 'firm', 'region', 'convict', 'private', 'command', 'debate', 'factory', 'publish', 'represent', 'term', 'section', 'relative', 'progress (long)', 'progress (short)', 'entire', 'president', 'preside', 'measure', 'famous', 'fame', 'serve', 'estate', 'remember', 'either', 'effort', 'important', 'importance', 'present', 'action', 'justice', 'just', 'gentleman', 'gentle', 'enclose', 'await', 'suppose', 'wonderful', 'direction', 'forward', 'backward', 'although', 'prompt', 'attempt', 'whose', 'who', 'statement', 'state', 'perhaps', 'their', 'they', 'written', 'arrange', 'forenoon', 'before',  'lose', 'loose', 'combination', 'combine', 'avenue', 'neighbor', 'weigh', 'wear', 'entertain', 'salary', 'visitor', 'visit', 'publication', 'machine', 'engine', 'toward', 'success', 'drown', 'adopt', 'secure', 'honor', 'promise', 'wreck', 'prepare', 'vessel', 'busy', 'prefer', 'preference', 'illustrate', 'illustration', 'different', 'differ', 'object', 'provision', 'according', 'already', 'attention', 'education', 'director', 'direct', 'purpose', 'common', 'diamond', 'together', 'convention', 'increase', 'manner', 'feature', 'article', 'service', 'injure', 'injury', 'effect', 'distribute', 'general', 'tomorrow', 'consider', 'against', 'again', 'gain', 'complete', 'search', 'treasure', 'popular', 'Christmas', 'interest', 'often', 'stopped', 'stop', 'motion', 'theater', 'improvement', 'improve', 'century', 'cent', 'total', 'mention', 'arrive', 'supply', 'assist', 'difference', 'examination', 'examine', 'particular', 'affair', 'course', 'coarse', 'neither', 'local', 'marriage', 'marry', 'carriage', 'carry', 'further', 'serious', 'doubt', 'condition', 'government', 'govern', 'opinion', 'onion', 'union', 'familiar', 'behavior', 'companion', 'million', 'believe', 'system', 'possible', 'piece', 'peace', 'certain', 'witness', 'investigate', 'therefore', '', 'too', 'two', 'to', 'pleasant', 'please', 'guess', 'guest', 'cirular', 'circle', 'argument', 'argue', 'volume', 'organize', 'summon', 'official', 'officer', 'office', 'victim', 'estimate', 'accident', 'invitation', 'invite', 'accept', 'impossible', 'concern', 'associate', 'automobile', 'various', 'vary', 'very', 'decide', 'entitle', 'national', 'nation', 'recent', 'business', 'busy', 'refer', 'minute (time)', 'minute (little)', 'ought', 'absence', 'absent', 'conference', 'Wednesday', 'really', 'real', 'celebration', 'folk', 'folks', 'meant', 'mean', 'earliest', 'early', 'whether', 'distinguished', 'consideration', 'colonies', 'colony', 'assure', 'sure', 'relief', 'occupy', 'probably', 'foreign', 'expense', 'responsible', 'response', 'beginning', 'begin', 'application', 'apply', 'difficulty', 'difficult', 'scene', 'science', 'scissors', 'descend', 'descent', 'finally', 'finally', 'final', 'develop', 'circumstance', 'circumference', 'circle', 'issue', 'tissue', 'material', 'suggest', 'mere', 'senate', 'senator', 'senatorial', 'receive', 'respectfully', 'respecful', 'agreement', 'unfortunate', 'majority', 'major', 'elaborate', 'citizen', 'ncessary', 'necessity', 'divide', 'principal', 'principle', 'testimony', 'discussion', 'discuss', 'arrangement', 'arrange', 'reference', 'refer', 'evidence', 'experience', 'session', 'secretary', 'association', 'career', 'height', 'weight', 'organization', 'organize', 'emergency', 'appreciate', 'sincerely', 'sincere', 'athletic', 'athlete', 'extreme', 'practical', 'proceed', 'cordially', 'cordial', 'character', 'separate', 'February', 'library', 'immediate', 'conveient', 'receipt', 'preliminary', 'disappoint', 'especially','me', 'do', 'and', 'go', 'gather', 'giant', 'scold', 'scratch', 'seed', 'selfish', 'serious', 'shell', 'shovel', 'shriek', 'sibling', 'silent', 'simple', 'slippery', 'sly', 'sneaky', 'sob', 'spiral', 'slendid', 'sprinkle', 'squirm', 'startle', 'steep', 'stormy', 'striped', 'surround', 'switch', 'terrified', 'thick', 'thunder', 'ticket', 'timid', 'transportation', 'travel', 'trust', 'upset', 'weed', 'whimper', 'whirl', 'wicked', 'yank', 'glad', 'gleaming', 'glum', 'grab', 'grateful', 'grin', 'mask', 'misty', 'modern', 'mountain', 'narrow', 'obey', 'pain', 'passenger', 'pattern', 'pest', 'pretend', 'promise', 'rapid', 'remove', 'repeat', 'rescue', 'restart', 'return', 'ripe', 'rise', 'roar', 'rough', 'rusty', 'grip', 'groan', 'hatch', 'heap', 'hide', 'hobby', 'honest', 'howl',  'jealous', 'knob', 'lively', 'loosen', 'daily', 'dart', 'decorate', 'delighted', 'bashful', 'basket', 'batch', 'behave', 'belong', 'bend', 'blink', 'blush', 'bolt', 'borrow', 'bundle','denied', 'deserve', 'divide', 'dodge', 'drenched', 'drowsy', 'at', 'on', 'a', 'it', 'is', 'she', 'see', 'run', 'the', 'in', 'so', 'no', 'now', 'man', 'ten', 'bed', 'top', 'he', 'you', 'will', 'we', 'an', 'my', 'ago', 'my', 'up', 'last', 'not', 'us', 'am', 'good', 'ache', 'adjust', 'affordable', 'alarm', 'alone', 'apologize', 'appetite', 'applause', 'artistic', 'atmosphere', 'attach', 'little', 'ago', 'old', 'bad', 'red', 'of', 'be', 'but', 'this', 'all', 'your', 'you', 'out', 'time', 'may', 'into', 'him', 'today', 'look', 'did', 'like', 'lace', 'six', 'boy', 'book', 'by', 'have', 'are', 'had', 'over', 'must', 'make', 'school', 'cabin', 'caterpillar', 'caution', 'cave', 'champion', 'chat', 'cheat', 'chimney', 'compass', 'comlain', 'conductor', 'construct', 'costume', 'cozy', 'cranky', 'crash', 'creak', 'croak', 'crowded', 'cue', 'curved', 'enormous', 'equal', 'exclaim', 'exhausted', 'expensive', 'fancy', 'fasten', 'filthy', 'flat', 'flee', 'fog', 'footprint', 'forest', 'freezing','street', 'say', 'come', 'hand', 'ring', 'live (short)', 'live (long)', 'drill', 'late', 'let', 'climb', 'big', 'mother', 'three', 'land', 'cold', 'hot', 'hat', 'child', 'ice', 'play', 'see', 'sea', 'day', 'eat', 'sit', 'lot', 'box', 'belong', 'door', 'floor', 'yes', 'low', 'soft', 'stand', 'yard', 'bring', 'tell', 'five', 'ball', 'law', 'ask', 'just', 'gust', 'way', 'get', 'home', 'much', 'call', 'long', 'love', 'then', 'house', 'year', 'to', 'I', 'as', 'send', 'one', 'has', 'some', 'if', 'how', 'her', 'them', 'other', 'baby', 'well', 'about', 'men', 'man', 'for', 'ran', 'run', 'was', 'that', 'his', 'led', 'lay', 'nice', 'face', 'miss', 'ride', 'tree', 'sick', 'got', 'north', 'white', 'spent', 'foot', 'blow', 'block', 'spring', 'river', 'plant', 'cut', 'song', 'sing', 'sang', 'sung', 'winter', 'stone', 'free', 'lake', 'lace', 'page', 'nine', 'end', 'fall', 'feet', 'went', 'back', 'away', 'paper', 'put', 'each', 'soon', 'come', 'Sunday', 'show', 'Monday', 'moon', 'yet', 'find', 'give', 'new', 'letter', 'take', 'Mr.', 'Mister', 'after', 'thing', 'what', 'than', 'its', 'very', 'or', 'thank', 'dear', 'west', 'sold', 'told', 'best', 'form', 'far', 'gave', 'alike', 'add', 'seven', 'forget', 'happy', 'noon', 'think', 'sister', 'cast', 'card', 'south', 'deep', 'inside', 'blue', 'post', 'town', 'stay', 'grand', 'outside', 'dark', 'band', 'game', 'boat', 'rest', 'east', 'son', 'sun', 'help', 'hard', 'race', 'cover', 'fire', 'wire', 'tire', 'age', 'gold', 'read (present)', 'read (past)', 'red', 'fine', 'cannot', 'May', 'may', 'line', 'left', 'ship', 'train', 'saw', 'pay', 'large', 'near', 'down', 'why', 'bill', 'want', 'girl', 'part', 'still', 'placed', 'report', 'never', 'found', 'side', 'kind', 'life', 'here', 'car', 'word', 'every', 'under', 'most', 'made', 'said', 'say', 'work', 'our', 'more', 'when', 'from', 'form', 'wind (blows)', 'wind (a watch)', 'print', 'air', 'fill', 'along', 'lost', 'name', 'room', 'hope', 'same', 'glad', 'with', 'mine', 'became', 'brother', 'rain', 'keep', 'start', 'mail', 'male', 'female', 'eye', 'I', 'glass', 'party', 'upon', 'two', 'twin', 'twain', 'twine', 'twilight', 'they', 'would', 'any', 'many', 'could', 'should', 'would', 'city', 'only', 'where', 'week', 'weak', 'first', 'sent', 'cent', 'mile', 'seem', 'see', 'even', 'without', 'afternoon', 'Friday', 'hour', 'our', 'wife', 'state', 'July', 'head', 'story', 'open', 'short', 'lady', 'reach', 'better', 'water', 'round', 'cost', 'price', 'become', 'class', 'try', 'horse', 'care', 'try', 'move', 'delay', 'pound', 'behind', 'around', 'burn', 'camp', 'bear', 'bare', 'clear', 'clean', 'spell', 'poor', 'finish', 'hurt', 'maybe', 'across', 'tonight', 'tenth', 'sir', 'these', 'those', 'club', 'seen', 'see', 'felt', 'full', 'fail', 'set', 'stamp', 'light', 'coming', 'cent', 'sent', 'night', 'pass', 'shut', 'easy', 'easily', 'ease', 'catch', 'black', 'warm', 'unless', 'clothing', 'clothe', 'began', 'begin', 'begun', 'able', 'gone', 'go', 'done', 'do', 'suit', 'track', 'watch', 'dash', 'fell', 'fell', 'fight', 'buy', 'stop', 'walk', 'talk', 'balk', 'grant', 'soap', 'news', 'above', 'express', 'turn', 'lesson', 'half', 'father', 'anything', 'table', 'high', 'June', 'right', 'write', 'wrote', 'date', 'road', 'rode', 'ride', 'March', 'march', 'next', 'indeed', 'four', 'herself', 'power', 'wish', 'because', 'world', 'country', 'meet', 'meat', 'another', 'trip', 'list', 'people', 'ever', 'held', 'church', 'once', 'one', 'own', 'before', 'know', 'no', 'were', 'where', 'there', 'here', 'dead', 'leave', 'early', 'close (distance)', 'close (a door)', 'flower', 'nothing', 'ground', 'lead (present)', 'lead (past)', 'such', 'many', 'morning', 'however', 'mind', 'shall', 'alone', 'order', 'third', 'push', 'point', 'within', 'done', 'do', 'gone', 'go', 'body', 'trust', 'extra', 'dress', 'beside', 'teach', 'happen', 'begun', 'collect', 'file', 'provide', 'sight', 'stood', 'fix', 'born', 'goes', 'go', 'Tuesday', 'hold', 'drill', 'army', 'pretty', 'stole', 'income', 'bought', 'paid', 'pay', 'laid', 'lay', 'said', 'say', 'enter', 'railroad', 'unable', 'ticket', 'account', 'driven', 'real', 'recover','mountain', 'steamer', 'speak', 'past', 'might', 'begin', 'contract', 'deal', 'almost', 'all', 'brought', 'less', 'even', 'off', 'of', 'true', 'took', 'again', 'inform', 'both', 'heart', 'month', 'children', 'child', 'build', 'built', 'understand', 'follow', 'charge', 'says', 'member', 'case', 'while', 'also', 'return', 'those', 'office', 'great', 'Miss', 'miss', 'who', 'died', 'die', 'change', 'wire', 'few', 'please', 'picture', 'money', 'ready', 'omit', 'anyway', 'any', 'way', 'except', 'aunt', 'ant', 'capture', 'wrote', 'write', 'else', 'bridge', 'offer', 'suffer', 'center', 'front', 'rule', 'carry', 'chain', 'death', 'learn', 'wonder', 'tire', 'pari', 'pear', 'check', 'prove', 'heard', 'hear', 'itself', 'always', 'something', 'expect', 'need', 'thus', 'woman', 'women', 'young', 'fair', 'fare', 'dollar', 'evening', 'eve', 'plain', 'plane', 'broke', 'feel', 'sure', 'sugar', 'least', 'sorry', 'press', 'teacher', 'November', 'subject', 'April', 'history', 'cause', 'study', 'himself', 'matter', 'use', 'thought', 'person', 'nor', 'or', 'January', 'mean', 'vote', 'court', 'copy', 'act', 'been', 'be', 'yesterday', 'among', 'question', 'quest', 'doctor', 'hear', 'size', 'December', 'dozen', 'there', 'tax', 'number', 'October', 'reason', 'fifth','catch', 'black', 'warm', 'unless', 'clothing', 'agree', 'arrive', 'astronomy', 'atlas', 'award', 'aware', 'balance', 'banner', 'base', 'beach', 'besides', 'blast', 'bounce', 'brain', 'branch', 'brave', 'bright', 'cage', 'calm', 'career', 'center', 'cheer', 'chew', 'claw', 'cliff', 'club', 'collect', 'connect', 'core', 'corner', 'couple', 'crowd', 'curious', 'damp', 'dangerous', 'dawn', 'demolish', 'design', 'discard', 'dive', 'dome', 'doubt', 'dozen', 'earth', 'enemy', 'exactly', 'excess', 'factory', 'feast', 'field', 'flap', 'float', 'flood', 'fold', 'fresh', 'fighten', 'fuel', 'gap', 'gaze', 'gift', 'gravity', 'greedy', 'harm', 'herd', 'idea', 'insect', 'instrument', 'invent', 'island', 'leader', 'leap', 'lizard', 'local', 'lonely', 'luxury', 'mention', 'motor', 'nervous', 'net', 'nibble', 'notice', 'ocean', 'pack', 'pale', 'parade', 'peak', 'planet', 'proof', 'reflect', 'rumor', 'safe', 'scholar', 'seal', 'settle', 'share', 'shelter', 'shiver', 'shy', 'skill', 'slight', 'smooth', 'soil', 'stack', 'steady', 'strand', 'stream', 'team', 'telescope', 'tiny', 'tower', 'travel', 'tremble', 'universe', 'villiage', 'warn', 'weak', 'wealthy', 'whisper', 'wise', 'worry', 'zigzag', 'sword', 'clothe',  'daily', 'dart', 'decorate', 'delighted', 'denied', 'dodge', 'drenched', 'drowsy', 'deserve', 'begin', 'begun', 'able', 'gone', 'go', 'done', 'do', 'suit', 'track', 'watch', 'dash', 'fell', 'fight', 'buy', 'by', 'stop', 'walk', 'talk', 'balk', 'grant', 'soap', 'news', 'small', 'war', 'summer', 'above', 'ache', 'adjust', 'affordable', 'alarm', 'alone', 'apologize', 'appetite', 'applause', 'artistic', 'atmosphere', 'attach', 'express', 'turn', 'lesson', 'half', 'father', 'anything', 'table', 'high', 'June', 'right', 'write', 'wrote', 'date', 'road', 'rode', 'ride', 'March', 'march', 'next', 'indeed', 'four', 'herself', 'power', 'wish', 'because', 'world', 'country', 'meet', 'meat', 'another', 'trip', 'list', 'people', 'ever', 'held', 'church', 'once', 'one', 'own', 'before', 'know', 'no', 'were', 'where', 'there', 'here', 'dead', 'leave', 'early', 'close (distance)', 'close (a door)', 'flower', 'nothing', 'ground', 'lead (present)', 'lead (past)', 'such', 'many', 'morning', 'however', 'mind', 'shall', 'alone', 'order', 'third', 'push', 'point', 'within', 'done', 'do', 'gone', 'go', 'body', 'except', 'aunt', 'ant', 'capture', 'wrote', 'write', 'else', 'bridge', 'offer', 'suffer', 'center', 'front', 'chain', 'death', 'learn', 'wonder', 'tire', 'pair', 'pear', 'check', 'prove', 'heard', 'hear', 'inspect', 'itself', 'always', 'something', 'exprect', 'need', 'thus', 'woman', 'women', 'young', 'fair', 'fare', 'dollar', 'evening', 'eve', 'plain', 'plane', 'broke', 'feel', 'sure', 'sugar', 'least', 'sorry', 'press', 'teacher', 'November', 'subject', 'April', 'history', 'cause', 'study', 'himself', 'matter', 'use', 'thought', 'person', 'nor', 'or', 'January', 'mean', 'vote', 'court', 'copy', 'act', 'been', 'be', 'yesterday', 'among', 'question', 'quest', 'doctor', 'hear', 'size', 'December', 'dozen', 'there', 'number', 'October', 'reason', 'fifth', 'eight', 'ate', 'afraid', 'uncle', 'rather', 'comfort', 'elect', 'aboard', 'rail', 'shed', 'retire', 'refuse', 'district', 'restrain', 'royal','objection', 'pleasure', 'measure', 'treasure', 'navy', 'population', 'proper', 'judge', 'weather', 'whether', 'worth', 'contain', 'figure', 'sudden', 'forty', 'fourth', 'instead', 'throw', 'threw', 'personal', 'everything', 'rate', 'chief', 'perfect', 'second', 'slide', 'farther', 'duty', 'intend', 'company', 'quite', 'quit', 'quiet', 'none', 'knew', 'know', 'remain', 'direct', 'appear', 'liberty', 'enough', 'fact', 'board', 'September', 'station', 'attend', 'between', 'public', 'music', 'picnic', 'friend', 'during', 'endure', 'through', 'police', 'until', 'madam', 'truly', 'true', 'whole', 'hole', 'address', 'request', 'raise', 'August', 'Tuesday', 'goes', 'does', 'struck', 'getting', 'get', 'Thursday', 'Saturday', 'spend', 'enjoy', 'awful', 'awe', 'usual', 'complain', 'auto', 'vacation', 'beautiful', 'beauty', 'flight', 'travel', 'rapid', 'repair', 'trouble', 'double', 'entrance',  'importance', 'important', 'carried', 'carry', 'lose', 'loss', 'fortune', 'empire', 'mayor', 'wait', 'beg', 'degree', 'bison', 'engine', 'visit', 'guest', 'guess', 'department', 'obtain', 'animal', 'family', 'favor', 'Mrs.', 'Mr.', 'Ms.', 'husband', 'amount', 'human', 'view', 'election', 'elect', 'clerk', 'though', 'support', 'does', 'goes', 'regard', 'escape', 'since', 'which', 'length', 'long', 'destroy', 'newspaper', 'daughter', 'naughty', 'caught', 'taught', 'answer', 'reply', 'oblige', 'sail', 'sale', 'cities', 'city', 'known', 'know', 'several', 'desire', 'arrest', 'themselves', 'self', 'calf', 'calves', 'half', 'halves', 'special', 'especially', 'women', 'present (gift)', 'present (display)', 'action', 'justice', 'just', 'gentleman', 'gentle', 'enclose', 'await', 'suppose', 'wonderful', 'direction', 'forward', 'backward', 'although', 'prompt', 'attempt', 'whose', 'who', 'statement', 'state', 'perhaps', 'their', 'they', 'written', 'arrange', 'nearly', 'sometimes', 'declare', 'engage', 'final', 'terrible', 'surprise', 'period', 'addition', 'employ', 'property', 'select', 'connection', 'connect', 'firm', 'region', 'religion', 'convict', 'private', 'command', 'debate', 'crowd', 'factory', 'pubish', 'represent', 'term', 'section', 'relative', 'progress', 'prgress', 'entire', 'presdident', 'preside', 'measure', 'famous', 'fame', 'serve', 'estate', 'remember', 'either', 'effort', 'important', 'importance', 'due', 'dew', 'include', 'running', 'run', 'allow', 'position', 'field', 'ledge', 'claim', 'primary', 'result', 'Saturday', 'appoint', 'information', 'whom', 'who'];
-        
+        // --- DATA ---
+        // Basic list of sight words
+        const allSightWords = [
+            'the', 'of', 'and', 'a', 'to', 'in', 'is', 'you', 'that', 'it', 
+            'he', 'was', 'for', 'on', 'are', 'as', 'with', 'his', 'they', 'I', 
+            'at', 'be', 'this', 'have', 'from', 'or', 'one', 'had', 'by', 'word',
+            'but', 'not', 'what', 'all', 'were', 'we', 'when', 'your', 'can', 'said'
+        ];
+
+        let selectedWords = [];
+        let practiceQueue = [];
         let currentWord = "";
-        let attempts = 0;
-        let sessionTotal = 0;
-        let sessionCorrect = 0;
-        const maxWords = 20;
+        let stickers = 0;
+        let audioContext = null;
+        let isTeacherMode = true;
 
-        const context = new (window.AudioContext || window.webkitAudioContext)();
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderTeacherGrid();
+            toggleMode(true); // Start in teacher mode
+        });
 
-        function playSuccessSound() {
-            const now = context.currentTime;
+        // --- TEACHER MODE FUNCTIONS ---
+        function renderTeacherGrid() {
+            const grid = document.getElementById('word-grid');
+            grid.innerHTML = '';
+            
+            allSightWords.forEach((word, index) => {
+                // Create checkbox container
+                const wrapper = document.createElement('div');
+                wrapper.className = "flex items-center space-x-2 bg-slate-50 p-2 rounded hover:bg-purple-50 transition-colors";
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = "checkbox";
+                checkbox.id = `word-${index}`;
+                checkbox.value = word;
+                checkbox.checked = true; // Default selected
+                checkbox.className = "w-5 h-5 text-purple-600 rounded focus:ring-purple-500 border-gray-300";
+                
+                const label = document.createElement('label');
+                label.htmlFor = `word-${index}`;
+                label.innerText = word;
+                label.className = "text-slate-700 font-medium cursor-pointer flex-grow";
+                
+                wrapper.appendChild(checkbox);
+                wrapper.appendChild(label);
+                grid.appendChild(wrapper);
+            });
+        }
+
+        function selectAll() {
+            document.querySelectorAll('#word-grid input').forEach(cb => cb.checked = true);
+        }
+
+        function clearAll() {
+            document.querySelectorAll('#word-grid input').forEach(cb => cb.checked = false);
+        }
+
+        function startSession() {
+            // Get selected words
+            const checkboxes = document.querySelectorAll('#word-grid input:checked');
+            selectedWords = Array.from(checkboxes).map(cb => cb.value);
+
+            if (selectedWords.length === 0) {
+                alert("Please select at least one word!");
+                return;
+            }
+
+            // Shuffle words for the queue
+            practiceQueue = [...selectedWords].sort(() => Math.random() - 0.5);
+            
+            toggleMode(false);
+            nextWord();
+        }
+
+        // --- STUDENT MODE FUNCTIONS ---
+        function nextWord() {
+            if (practiceQueue.length === 0) {
+                // Reshuffle if empty
+                practiceQueue = [...selectedWords].sort(() => Math.random() - 0.5);
+            }
+            currentWord = practiceQueue.pop();
+            
+            // Update UI
+            document.getElementById('display-word').innerText = currentWord;
+            document.getElementById('display-word').classList.remove('sparkle-text');
+            document.getElementById('feedback-text').innerText = "Click the mic and read the word!";
+            document.getElementById('feedback-text').className = "text-xl text-slate-500 font-medium";
+        }
+
+        function playWordAudio() {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(currentWord);
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function skipWord() {
+            nextWord();
+        }
+
+        // --- SPEECH RECOGNITION ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const micBtn = document.getElementById('mic-btn');
+
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            micBtn.addEventListener('click', () => {
+                // Init Audio Context for sounds (needs user gesture)
+                if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioContext.state === 'suspended') audioContext.resume();
+
+                micBtn.classList.add('mic-active', 'bg-red-500');
+                micBtn.classList.remove('bg-purple-600');
+                document.getElementById('feedback-text').innerText = "Listening...";
+                recognition.start();
+            });
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript.toLowerCase().trim();
+                const target = currentWord.toLowerCase().trim();
+                
+                stopMicVisuals();
+
+                if (transcript.includes(target)) {
+                    // SUCCESS
+                    handleSuccess();
+                } else {
+                    // FAILURE
+                    document.getElementById('feedback-text').innerHTML = `I heard <strong>"${transcript}"</strong>. Try again!`;
+                    document.getElementById('feedback-text').className = "text-xl text-red-500 font-bold";
+                    playErrorSound();
+                }
+            };
+
+            recognition.onerror = (event) => {
+                stopMicVisuals();
+                document.getElementById('feedback-text').innerText = "Didn't catch that. Click to try again.";
+            };
+
+            recognition.onend = stopMicVisuals;
+
+        } else {
+            micBtn.style.display = 'none';
+            document.getElementById('feedback-text').innerText = "Speech recognition not supported in this browser.";
+        }
+
+        function stopMicVisuals() {
+            micBtn.classList.remove('mic-active', 'bg-red-500');
+            micBtn.classList.add('bg-purple-600');
+        }
+
+        function handleSuccess() {
+            playSuccessChord();
+            addSticker();
+            
+            const display = document.getElementById('display-word');
+            display.classList.add('sparkle-text');
+            
+            document.getElementById('feedback-text').innerText = "Great job! ✨";
+            document.getElementById('feedback-text').className = "text-xl text-green-600 font-bold";
+
+            setTimeout(() => {
+                nextWord();
+            }, 1500);
+        }
+
+        // --- AUDIO & GAMIFICATION ---
+        function playErrorSound() {
+            if (!audioContext) return;
+            const ctx = audioContext;
+            const osc = ctx.createOscillator();
+            const g = ctx.createGain();
+            osc.connect(g); g.connect(ctx.destination);
+            osc.frequency.value = 200;
+            osc.type = 'sawtooth';
+            g.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.3);
+            osc.start(); osc.stop(ctx.currentTime + 0.3);
+        }
+
+        function playSuccessChord() {
+            if (!audioContext) return;
+            const ctx = audioContext;
+            const now = ctx.currentTime;
             [523.25, 659.25, 783.99].forEach((freq, i) => {
-                const osc = context.createOscillator();
-                const gain = context.createGain();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(freq, now + (i * 0.05));
                 gain.gain.setValueAtTime(0.1, now + (i * 0.05));
                 gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.5 + (i * 0.05));
                 osc.connect(gain);
-                gain.connect(context.destination);
+                gain.connect(ctx.destination);
                 osc.start(now + (i * 0.05));
                 osc.stop(now + 0.6 + (i * 0.05));
             });
         }
 
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
-        if (!SpeechRecognition) {
-            alert("Mic not supported. Please use Chrome.");
-        } else {
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
+        function addSticker() {
+            stickers++;
+            document.getElementById('sticker-display').innerText = `⭐ ${stickers} Stickers`;
+        }
 
-            const micCircle = document.getElementById('mic-circle');
-            const gameCard = document.getElementById('game-card');
-            const resultsCard = document.getElementById('results-card');
-            const startBtn = document.getElementById('start-lab-btn');
-            const wordDisplay = document.getElementById('word-to-say');
-            const feedbackText = document.getElementById('speech-feedback');
-            const instruction = document.getElementById('instruction');
-            const counterDisplay = document.getElementById('current-count');
+        // --- NAVIGATION ---
+        document.getElementById('mode-toggle').addEventListener('click', () => {
+            isTeacherMode = !isTeacherMode;
+            toggleMode(isTeacherMode);
+        });
 
-            function pickNewWord() {
-                if (sessionTotal >= maxWords) {
-                    showResults();
-                    return;
-                }
-                sessionTotal++;
-                counterDisplay.innerText = sessionTotal;
-                const randomIndex = Math.floor(Math.random() * sightWords.length);
-                currentWord = sightWords[randomIndex];
-                wordDisplay.innerText = currentWord;
-                attempts = 0;
-                feedbackText.classList.add('hidden');
-                instruction.innerText = "Click to read the word!";
-                resetMicColor();
+        function endSession() {
+            toggleMode(true);
+        }
+
+        function toggleMode(teacher) {
+            const teacherView = document.getElementById('teacher-view');
+            const studentView = document.getElementById('student-view');
+            
+            if (teacher) {
+                teacherView.classList.remove('hidden');
+                studentView.classList.add('hidden');
+            } else {
+                teacherView.classList.add('hidden');
+                studentView.classList.remove('hidden');
             }
-
-            function showResults() {
-                gameCard.classList.add('hidden');
-                document.getElementById('app-header').classList.add('hidden');
-                resultsCard.classList.remove('hidden');
-                const percent = Math.round((sessionCorrect / maxWords) * 100);
-                document.getElementById('final-percentage').innerText = percent + "%";
-                document.getElementById('final-stats').innerText = `You got ${sessionCorrect} out of ${maxWords} correct!`;
-            }
-
-            function setMicToListening() {
-                micCircle.classList.remove('bg-purple-100', 'text-purple-600');
-                micCircle.classList.add('bg-red-500', 'text-white', 'pulse-red');
-            }
-
-            function resetMicColor() {
-                micCircle.classList.add('bg-purple-100', 'text-purple-600');
-                micCircle.classList.remove('bg-red-500', 'text-white', 'pulse-red');
-            }
-
-            pickNewWord();
-
-            startBtn.addEventListener('click', () => {
-                if (context.state === 'suspended') { context.resume(); }
-                setMicToListening();
-                feedbackText.classList.remove('hidden');
-                feedbackText.innerText = "Listening...";
-                recognition.start();
-            });
-
-            recognition.onresult = (event) => {
-                const userSaid = event.results[0][0].transcript;
-                const userSaidLower = userSaid.toLowerCase().trim();
-                resetMicColor();
-
-                if (userSaidLower.includes(currentWord.toLowerCase())) {
-                    // CORRECT
-                    sessionCorrect++;
-                    playSuccessSound();
-                    feedbackText.innerHTML = `🌟 Excellent! You said "${currentWord}"`;
-                    setTimeout(pickNewWord, 1500);
-                } else {
-                    // INCORRECT
-                    attempts++;
-                    if (attempts < 2) {
-                        // RE-ADDED THE FEEDBACK MESSAGE HERE
-                        feedbackText.innerHTML = `❌ I heard you say "${userSaid}". Try again!`;
-                        instruction.innerText = "Click for your 2nd chance!";
-                    } else {
-                        feedbackText.innerHTML = `Moving on! That word was "${currentWord}".`;
-                        setTimeout(pickNewWord, 2000);
-                    }
-                }
-            };
-
-            recognition.onerror = () => {
-                resetMicColor();
-                feedbackText.innerText = "I didn't hear you. Click to try again!";
-            };
         }
     </script>
 </body>
